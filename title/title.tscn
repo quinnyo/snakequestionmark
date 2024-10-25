@@ -1,0 +1,47 @@
+[gd_scene load_steps=3 format=3 uid="uid://dt5ulianoauiv"]
+
+[sub_resource type="FontVariation" id="FontVariation_x8gfd"]
+variation_embolden = 1.35
+spacing_glyph = -2
+
+[sub_resource type="LabelSettings" id="LabelSettings_yepwa"]
+font = SubResource("FontVariation_x8gfd")
+font_size = 106
+font_color = Color(0.885521, 0.895766, 0.838344, 1)
+outline_size = 54
+outline_color = Color(0.266832, 0.453661, 0.198096, 1)
+
+[node name="Title" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
+layout_mode = 2
+
+[node name="Head" type="Label" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+text = "Snake Fits"
+label_settings = SubResource("LabelSettings_yepwa")
+horizontal_alignment = 1
+
+[node name="Label" type="Label" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+label_settings = SubResource("LabelSettings_yepwa")
+horizontal_alignment = 1
+
+[node name="Label2" type="Label" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+label_settings = SubResource("LabelSettings_yepwa")
+horizontal_alignment = 1

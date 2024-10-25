@@ -11,6 +11,7 @@ config_version=5
 [application]
 
 config/name="snakepit"
+run/main_scene="res://title/title.tscn"
 config/features=PackedStringArray("4.3", "GL Compatibility")
 config/icon="res://icon.svg"
 
@@ -20,8 +21,6 @@ DebugCameraMan2D="*res://tools/debug_camera_man_2d.gd"
 
 [display]
 
-window/size/viewport_width=960
-window/size/viewport_height=540
 window/stretch/mode="canvas_items"
 window/stretch/aspect="keep_height"
 
@@ -60,3 +59,4 @@ uix_scroll_modifier={
 
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
+environment/defaults/default_clear_color=Color(0.48177, 0.503824, 0.581133, 1)
