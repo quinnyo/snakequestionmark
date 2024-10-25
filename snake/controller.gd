@@ -1,8 +1,6 @@
 class_name SnakeController extends Cellular
 
-@export var step_interval := 0.5
 var _segs: Array[SnakeSegment] = []
-var _timer: float = 1.0
 
 
 func clear():
@@ -17,7 +15,6 @@ func append_segment(s: SnakeSegment) -> void:
 
 
 func start(head: Vector2i, length: int):
-	_timer = step_interval
 	var dir := Vector2i.DOWN
 	clear()
 	var face := SnakeSegment.new()
@@ -52,11 +49,15 @@ func seg_cpos(seg: int) -> Vector2i:
 	return _segs[seg].cpos
 
 
+func seg_set_cpos(seg: int, c: Vector2i) -> void:
+	assert(seg >= 0 && seg < _segs.size())
+	_segs[seg].cpos = c
+	_segs[seg].queue_redraw()
+
+
 func seg_direction(seg: int) -> Vector2i:
-	if seg == 0:
-		return seg_direction(1)
-	assert(seg > 0 && seg < _segs.size())
-	return seg_cpos(seg - 1) - seg_cpos(seg)
+	assert(seg >= 0 && seg < _segs.size())
+	return _segs[seg].heading()
 
 
 func try_face_direction(d: Vector2i) -> void:
@@ -67,7 +68,9 @@ func try_face_direction(d: Vector2i) -> void:
 		if seg_direction(2) == -d:
 			return
 	if _segs.size() >= 2:
-		_segs[0].cpos = _segs[1].cpos + d
+		seg_set_cpos(0, seg_cpos(1) + d)
+
+	queue_redraw()
 
 
 func step() -> void:
@@ -84,15 +87,17 @@ func step() -> void:
 	# MOVE
 	var head_forward := seg_direction(1)
 	for seg in range(_segs.size() - 1, 0, -1):
-		_segs[seg].cpos = _segs[seg - 1].cpos
-	_segs[0].cpos += head_forward
+		seg_set_cpos(seg, seg_cpos(seg - 1))
+	seg_set_cpos(0, nextcpos + head_forward)
+
+	queue_redraw()
 
 
 func _ready() -> void:
 	start(Vector2i(7, 5), 5)
 
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	var dir := Vector2i.ZERO
 	if Input.is_action_pressed("ui_right"):
 		dir.x += 1
@@ -103,11 +108,6 @@ func _process(delta: float) -> void:
 	if Input.is_action_pressed("ui_up"):
 		dir.y -= 1
 	try_face_direction(dir)
-	_timer -= delta
-	if _timer <= 0.0:
-		_timer += step_interval
-		step()
-	queue_redraw()
 
 
 func _draw() -> void:
@@ -132,3 +132,7 @@ func _draw() -> void:
 			draw_circle(right, radius / 4.0, Color.BLACK)
 			draw_circle(left, radius / 4.0, Color.BLACK)
 	draw_polyline(points, Color.SPRING_GREEN, 2.0)
+
+
+func _on_metronome_tick(_n: int) -> void:
+	step()
