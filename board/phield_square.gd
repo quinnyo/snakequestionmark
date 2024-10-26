@@ -1,16 +1,6 @@
 class_name PhieldSquare extends Phield
 ## A square grid with first-class borders and corners.
 
-enum SquareBorder { E, S, W, N }
-enum SquareCorner { SE, SW, NW, NE }
-
-const ADJACENT := [Vector2i(2, 0), Vector2i(0, 2), Vector2i(-2, 0), Vector2i(0, -2)]
-const DIAGONAL := [Vector2i(2, 2), Vector2i(-2, 2), Vector2i(-2, -2), Vector2i(2, -2)]
-
-const BORDER := [Vector2i(1, 0), Vector2i(0, 1), Vector2i(-1, 0), Vector2i(0, -1)]
-const CORNER := [Vector2i(1, 1), Vector2i(-1, 1), Vector2i(-1, -1), Vector2i(1, -1)]
-
-
 ## enable coordinate bounds
 @export var bounds_enabled: bool = false
 ## Bounding size in _cells_ (columns, rows).
@@ -74,22 +64,6 @@ func c_face(c: Vector2i) -> Vector2i:
 
 func c_rface(c: Vector2i) -> Vector2i:
 	return Vector2i(c.x - 1 | 1, c.y - 1 | 1)
-
-
-#func c_border(c: Vector2i, dir: int) -> Vector2i:
-	#return c + BORDER[dir % BORDER.size()]
-#
-#
-#func c_corner(c: Vector2i, dir: int) -> Vector2i:
-	#return c + CORNER[dir % CORNER.size()]
-#
-#
-#func c_adjacent(c: Vector2i) -> Array[Vector2i]:
-	#return [c + ADJACENT[0], c + ADJACENT[1], c + ADJACENT[2], c + ADJACENT[3]]
-#
-#
-#func c_diagonal(c: Vector2i) -> Array[Vector2i]:
-	#return [c + DIAGONAL[0], c + DIAGONAL[1], c + DIAGONAL[2], c + DIAGONAL[3]]
 
 
 func origin(c: Vector2i, layout: LayoutSquare) -> Vector2:
