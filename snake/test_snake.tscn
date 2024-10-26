@@ -10,7 +10,7 @@
 script = ExtResource("2_gpwql")
 bounds_enabled = true
 size = Vector2i(10, 20)
-boundary_includes_borders = false
+boundary_includes_borders = true
 
 [sub_resource type="Resource" id="Resource_am3co"]
 script = ExtResource("3_ljla4")

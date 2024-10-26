@@ -1,5 +1,8 @@
 class_name SnakeController extends Cellular
 
+@export var allow_diagonals: bool = false
+@export var step_size: int = 2
+
 var _segs: Array[SnakeSegment] = []
 
 
@@ -9,39 +12,39 @@ func clear():
 	_segs.clear()
 
 
+func length() -> int:
+	return _segs.size()
+
+
 func append_segment(s: SnakeSegment) -> void:
 	add_child(s)
 	_segs.append(s)
 
 
-func start(head: Vector2i, length: int):
-	var dir := Vector2i.DOWN
+func grow(dir: Vector2i = Vector2i.ZERO) -> void:
+	if length() == 0:
+		push_error("cannot grow() zero length snake")
+		return
+	var segahead := _segs[-1]
+	var s := SnakeSegment.new()
+	s.cpos = _segs[-1].cpos - dir
+	if length() == 1:
+		s.type = SnakeSegment.SegmentType.HEAD
+	elif length() > 2:
+		segahead.type = SnakeSegment.SegmentType.BODY
+	append_segment(s)
+
+
+func start(head: Vector2i, add_length: int = 0):
+	var dir := Vector2i.DOWN * step_size
 	clear()
-	var face := SnakeSegment.new()
-	#face.type = SnakeSegment.SegmentType.FACE
-	face.cpos = head + dir
-	append_segment(face)
-	var c := head
-	for i in range(length):
-		var s := SnakeSegment.new()
-		#s.type = SnakeSegment.SegmentType.HEAD if i == 0 else SnakeSegment.SegmentType.BODY
-		s.cpos = c
-		append_segment(s)
-		c -= dir
-
-
-func check() -> bool:
-	if _segs.size() < 2:
-		return false
-	for seg in range(1, _segs.size()):
-		var s0 := _segs[seg - 1]
-		var s1 := _segs[seg]
-		var d := s0.cpos - s1.cpos
-		if absi(d.x) == 1 && d.y != 0:
-			return false
-		if absi(d.y) == 1 && d.x != 0:
-			return false
-	return true
+	var segface := SnakeSegment.new()
+	segface.cpos = head + dir
+	segface.type = SnakeSegment.SegmentType.FACE
+	append_segment(segface)
+	grow(dir)
+	for i in range(add_length):
+		grow()
 
 
 func seg_cpos(seg: int) -> Vector2i:
@@ -61,16 +64,18 @@ func seg_direction(seg: int) -> Vector2i:
 
 
 func try_face_direction(d: Vector2i) -> void:
-	if absi(d.x) + absi(d.y) != 1:
+	if _segs.size() < 2:
 		return
-	if _segs.size() > 2:
-		# can't go backwards into self
-		if seg_direction(2) == -d:
+	if !allow_diagonals && d.x != 0 && d.y != 0:
+		return
+	d = d.sign() * step_size
+	# prevent self intersection
+	var newpos := seg_cpos(1) + d
+	for seg in _segs:
+		if seg.cpos == newpos:
 			return
-	if _segs.size() >= 2:
+	if _board.is_open(newpos):
 		seg_set_cpos(0, seg_cpos(1) + d)
-
-	queue_redraw()
 
 
 func step() -> void:
@@ -90,8 +95,6 @@ func step() -> void:
 		seg_set_cpos(seg, seg_cpos(seg - 1))
 	seg_set_cpos(0, nextcpos + head_forward)
 
-	queue_redraw()
-
 
 func _ready() -> void:
 	start(Vector2i(7, 5), 5)
@@ -107,31 +110,7 @@ func _process(_delta: float) -> void:
 		dir.y += 1
 	if Input.is_action_pressed("ui_up"):
 		dir.y -= 1
-	try_face_direction(dir)
-
-
-func _draw() -> void:
-	if !_board:
-		return
-	if _segs.size() < 2:
-		return
-
-	var points := PackedVector2Array()
-	for seg in range(1, _segs.size()):
-		var s0 := seg_cpos(seg - 1)
-		var s1 := seg_cpos(seg)
-		var d := Vector2(s0 - s1)
-		var centre := _board.cell_centre(s1)
-		points.append(centre)
-		var radius := 9.0 if seg == 1 else 5.0
-		var seg_pos := centre + d * radius / 3.0
-		draw_circle(seg_pos, radius, Color.DARK_ORANGE)
-		if seg == 1:
-			var right := seg_pos + d.rotated(deg_to_rad(25.0)) * (radius * 0.8)
-			var left := seg_pos + d.rotated(deg_to_rad(-25.0)) * (radius * 0.8)
-			draw_circle(right, radius / 4.0, Color.BLACK)
-			draw_circle(left, radius / 4.0, Color.BLACK)
-	draw_polyline(points, Color.SPRING_GREEN, 2.0)
+	try_face_direction(dir * step_size)
 
 
 func _on_metronome_tick(_n: int) -> void:
