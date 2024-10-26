@@ -1,49 +1,6 @@
 class_name PhieldSquare extends Phield
 ## A square grid with first-class borders and corners.
 
-## enable coordinate bounds
-@export var bounds_enabled: bool = false
-## Bounding size in _cells_ (columns, rows).
-@export var size: Vector2i = Vector2i(0, 0):
-	set(value):
-		size = value
-		_refresh_bounds()
-## If true, the border coordinates along the boundary will be considered in-bounds.
-@export var boundary_includes_borders: bool = false:
-	set(value):
-		boundary_includes_borders = value
-		_refresh_bounds()
-
-var bounds_min: Vector2i:
-	set(value):
-		push_error("nah")
-	get:
-		return _bounds_min
-var bounds_max: Vector2i:
-	set(value):
-		push_error("nah")
-	get:
-		return _bounds_max
-
-
-var _bounds_min: Vector2i = Vector2i.MIN
-var _bounds_max: Vector2i = Vector2i.MAX
-
-
-func _refresh_bounds() -> void:
-	_bounds_min = Vector2i(0, 0) if boundary_includes_borders else Vector2i(1, 1)
-	_bounds_max = Vector2i(size * 2 + Vector2i.ONE) if boundary_includes_borders else Vector2i(size * 2)
-
-
-func is_out_of_bounds(c: Vector2i) -> bool:
-	if !bounds_enabled:
-		return false
-	elif c.x < _bounds_min.x || c.y < _bounds_min.y:
-		return true
-	elif c.x >= _bounds_max.x || c.y >= _bounds_max.y:
-		return true
-	return false
-
 
 func c_is_face(c: Vector2i) -> bool:
 	return c.x & 1 && c.y & 1
