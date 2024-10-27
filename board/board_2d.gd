@@ -69,9 +69,3 @@ func _draw() -> void:
 				color = Color.CADET_BLUE
 			var points := phield.vertices(c, layout)
 			draw_colored_polygon(points, color)
-
-	# a grid
-	#for x in range(0, 2048, 16):
-		#draw_line(Vector2(x, 0), Vector2(x, 2048), Color(0.4, 0.803922, 0.666667, 0.5))
-	#for y in range(0, 2048, 16):
-		#draw_line(Vector2(0, y), Vector2(2048, y), Color(1, 0.388235, 0.278431, 0.5))
