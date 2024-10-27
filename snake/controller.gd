@@ -3,6 +3,10 @@ class_name SnakeController extends Cellular
 @export var allow_diagonals: bool = false
 @export var step_size: int = 2
 
+@export var prevent_steering_180: bool = true
+@export var prevent_steering_at_wall: bool = false
+@export var prevent_steering_at_self: bool = false
+
 var _crashed: bool = false
 var _segs: Array[SnakeSegment] = []
 
@@ -51,16 +55,21 @@ func start(head: Vector2i, add_length: int = 0):
 func try_face_direction(d: Vector2i) -> void:
 	if length() < 2:
 		return
+	if d.x == 0 && d.y == 0:
+		return
 	if !allow_diagonals && d.x != 0 && d.y != 0:
 		return
 	d = d.sign() * step_size
-	# prevent self intersection
 	var newpos := _seg_cpos(1) + d
-	for seg in _segs:
-		if seg.cpos == newpos:
-			return
-	if _board.is_open(newpos):
-		_seg_set_cpos(0, newpos)
+	if prevent_steering_180 && length() > 2 && _seg_cpos(2) == newpos:
+		return
+	if prevent_steering_at_self:
+		for seg in _segs:
+			if seg.cpos == newpos:
+				return
+	if prevent_steering_at_wall && !_board.is_open(newpos):
+		return
+	_seg_set_cpos(0, newpos)
 
 
 func step() -> void:
