@@ -76,7 +76,7 @@ func motion() -> void:
 
 	# If forward position is not empty, STOP?
 	var nextcpos := _seg_cpos(0)
-	if !_board.is_open(nextcpos):
+	if !can_move_to(nextcpos):
 		# ????: Try alternatives?
 		# ????: If no open cells, STOP???
 		crash()
@@ -91,6 +91,15 @@ func motion() -> void:
 
 func crash() -> void:
 	_crashed = true
+
+
+func can_move_to(c: Vector2i) -> bool:
+	if !_board.is_open(c):
+		return false
+	for i in range(1, length()):
+		if _seg_cpos(i) == c:
+			return false
+	return true
 
 
 func _seg_cpos(idx: int) -> Vector2i:
