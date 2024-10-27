@@ -25,13 +25,12 @@ func grow(dir: Vector2i = Vector2i.ZERO) -> void:
 	if length() == 0:
 		push_error("cannot grow() zero length snake")
 		return
-	var segahead := _segs[-1]
 	var s := SnakeSegment.new()
-	s.cpos = _segs[-1].cpos - dir
+	s.cpos = _seg_cpos(-1) - dir
 	if length() == 1:
 		s.type = SnakeSegment.SegmentType.HEAD
 	elif length() > 2:
-		segahead.type = SnakeSegment.SegmentType.BODY
+		_segs[-1].type = SnakeSegment.SegmentType.BODY
 	append_segment(s)
 
 
@@ -48,7 +47,7 @@ func start(head: Vector2i, add_length: int = 0):
 
 
 func try_face_direction(d: Vector2i) -> void:
-	if _segs.size() < 2:
+	if length() < 2:
 		return
 	if !allow_diagonals && d.x != 0 && d.y != 0:
 		return
@@ -59,11 +58,11 @@ func try_face_direction(d: Vector2i) -> void:
 		if seg.cpos == newpos:
 			return
 	if _board.is_open(newpos):
-		_seg_set_cpos(0, _seg_cpos(1) + d)
+		_seg_set_cpos(0, newpos)
 
 
 func step() -> void:
-	if _segs.size() < 2:
+	if length() < 2:
 		return
 
 	# If forward position is not empty, STOP?
@@ -75,7 +74,7 @@ func step() -> void:
 
 	# MOVE
 	var head_forward := _seg_heading(1)
-	for seg in range(_segs.size() - 1, 0, -1):
+	for seg in range(length() - 1, 0, -1):
 		_seg_set_cpos(seg, _seg_cpos(seg - 1))
 	_seg_set_cpos(0, nextcpos + head_forward)
 
