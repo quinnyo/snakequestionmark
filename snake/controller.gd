@@ -3,10 +3,12 @@ class_name SnakeController extends Cellular
 @export var allow_diagonals: bool = false
 @export var step_size: int = 2
 
+var _crashed: bool = false
 var _segs: Array[SnakeSegment] = []
 
 
 func clear():
+	_crashed = false
 	for child in _segs:
 		child.queue_free()
 	_segs.clear()
@@ -62,6 +64,13 @@ func try_face_direction(d: Vector2i) -> void:
 
 
 func step() -> void:
+	if _crashed:
+		pass
+	else:
+		motion()
+
+
+func motion() -> void:
 	if length() < 2:
 		return
 
@@ -70,6 +79,7 @@ func step() -> void:
 	if !_board.is_open(nextcpos):
 		# ????: Try alternatives?
 		# ????: If no open cells, STOP???
+		crash()
 		return
 
 	# MOVE
@@ -77,6 +87,10 @@ func step() -> void:
 	for seg in range(length() - 1, 0, -1):
 		_seg_set_cpos(seg, _seg_cpos(seg - 1))
 	_seg_set_cpos(0, nextcpos + head_forward)
+
+
+func crash() -> void:
+	_crashed = true
 
 
 func _seg_cpos(idx: int) -> Vector2i:
@@ -97,16 +111,19 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
-	var dir := Vector2i.ZERO
-	if Input.is_action_pressed("ui_right"):
-		dir.x += 1
-	if Input.is_action_pressed("ui_left"):
-		dir.x -= 1
-	if Input.is_action_pressed("ui_down"):
-		dir.y += 1
-	if Input.is_action_pressed("ui_up"):
-		dir.y -= 1
-	try_face_direction(dir * step_size)
+	if _crashed:
+		pass
+	else:
+		var dir := Vector2i.ZERO
+		if Input.is_action_pressed("ui_right"):
+			dir.x += 1
+		if Input.is_action_pressed("ui_left"):
+			dir.x -= 1
+		if Input.is_action_pressed("ui_down"):
+			dir.y += 1
+		if Input.is_action_pressed("ui_up"):
+			dir.y -= 1
+		try_face_direction(dir * step_size)
 
 
 func _on_metronome_tick(_n: int) -> void:
