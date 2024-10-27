@@ -1,5 +1,7 @@
 class_name SnakeController extends Cellular
 
+signal crashed()
+
 @export var allow_diagonals: bool = false
 @export var step_size: int = 2
 
@@ -100,6 +102,7 @@ func motion() -> void:
 
 func crash() -> void:
 	_crashed = true
+	crashed.emit()
 
 
 func can_move_to(c: Vector2i) -> bool:
