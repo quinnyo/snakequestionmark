@@ -47,22 +47,6 @@ func start(head: Vector2i, add_length: int = 0):
 		grow()
 
 
-func seg_cpos(seg: int) -> Vector2i:
-	assert(seg >= 0 && seg < _segs.size())
-	return _segs[seg].cpos
-
-
-func seg_set_cpos(seg: int, c: Vector2i) -> void:
-	assert(seg >= 0 && seg < _segs.size())
-	_segs[seg].cpos = c
-	_segs[seg].queue_redraw()
-
-
-func seg_direction(seg: int) -> Vector2i:
-	assert(seg >= 0 && seg < _segs.size())
-	return _segs[seg].heading()
-
-
 func try_face_direction(d: Vector2i) -> void:
 	if _segs.size() < 2:
 		return
@@ -70,12 +54,12 @@ func try_face_direction(d: Vector2i) -> void:
 		return
 	d = d.sign() * step_size
 	# prevent self intersection
-	var newpos := seg_cpos(1) + d
+	var newpos := _seg_cpos(1) + d
 	for seg in _segs:
 		if seg.cpos == newpos:
 			return
 	if _board.is_open(newpos):
-		seg_set_cpos(0, seg_cpos(1) + d)
+		_seg_set_cpos(0, _seg_cpos(1) + d)
 
 
 func step() -> void:
@@ -83,17 +67,30 @@ func step() -> void:
 		return
 
 	# If forward position is not empty, STOP?
-	var nextcpos := seg_cpos(0)
+	var nextcpos := _seg_cpos(0)
 	if !_board.is_open(nextcpos):
 		# ????: Try alternatives?
 		# ????: If no open cells, STOP???
 		return
 
 	# MOVE
-	var head_forward := seg_direction(1)
+	var head_forward := _seg_heading(1)
 	for seg in range(_segs.size() - 1, 0, -1):
-		seg_set_cpos(seg, seg_cpos(seg - 1))
-	seg_set_cpos(0, nextcpos + head_forward)
+		_seg_set_cpos(seg, _seg_cpos(seg - 1))
+	_seg_set_cpos(0, nextcpos + head_forward)
+
+
+func _seg_cpos(idx: int) -> Vector2i:
+	return _segs[idx].cpos
+
+
+func _seg_set_cpos(idx: int, c: Vector2i) -> void:
+	_segs[idx].cpos = c
+	_segs[idx].queue_redraw()
+
+
+func _seg_heading(idx: int) -> Vector2i:
+	return _segs[idx].heading()
 
 
 func _ready() -> void:
