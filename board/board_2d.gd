@@ -1,7 +1,7 @@
 class_name Board2D extends Node2D
 
 @export var phield: PhieldSquare
-@export var layout: LayoutSquare
+@export var layout: PhieldLayout
 
 ## Bounding size in _cells_ (columns, rows).
 @export var size: Vector2i = Vector2i(10, 10):

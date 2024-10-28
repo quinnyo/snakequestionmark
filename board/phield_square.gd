@@ -23,9 +23,9 @@ func c_rface(c: Vector2i) -> Vector2i:
 	return Vector2i(c.x - 1 | 1, c.y - 1 | 1)
 
 
-func origin(c: Vector2i, layout: LayoutSquare) -> Vector2:
+func origin(c: Vector2i, layout: PhieldLayout) -> Vector2:
 	# as corner position initially
-	var pos := Vector2(c / 2) * layout.unit
+	var pos := Vector2(c / 2) * layout.size
 	# add border/margin if c is face coord
 	if c.x & 1:
 		pos.x += layout.border_width.x
@@ -34,15 +34,15 @@ func origin(c: Vector2i, layout: LayoutSquare) -> Vector2:
 	return pos
 
 
-func centre(c: Vector2i, layout: LayoutSquare) -> Vector2:
-	var w := layout.unit.x - layout.border_width.x if c.x & 1 == 1 else layout.border_width.x
-	var h := layout.unit.y - layout.border_width.y if c.y & 1 == 1 else layout.border_width.y
+func centre(c: Vector2i, layout: PhieldLayout) -> Vector2:
+	var w := layout.size.x - layout.border_width.x if c.x & 1 == 1 else layout.border_width.x
+	var h := layout.size.y - layout.border_width.y if c.y & 1 == 1 else layout.border_width.y
 	var p := origin(c, layout)
 	return p + Vector2(w, h) / 2.0
 
 
-func vertices(c: Vector2i, layout: LayoutSquare) -> PackedVector2Array:
-	var w := layout.unit.x - layout.border_width.x if c.x & 1 == 1 else layout.border_width.x
-	var h := layout.unit.y - layout.border_width.y if c.y & 1 == 1 else layout.border_width.y
+func vertices(c: Vector2i, layout: PhieldLayout) -> PackedVector2Array:
+	var w := layout.size.x - layout.border_width.x if c.x & 1 == 1 else layout.border_width.x
+	var h := layout.size.y - layout.border_width.y if c.y & 1 == 1 else layout.border_width.y
 	var p := origin(c, layout)
 	return PackedVector2Array([p + Vector2(w, h), p + Vector2(0, h), p, p + Vector2(w, 0)])
