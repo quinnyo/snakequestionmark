@@ -10,8 +10,6 @@ class_name Agrid2D extends Node2D
 		grid = value
 		grid.changed.connect(_on_grid_changed)
 		queue_redraw()
-
-
 @export var clip_region: Rect2 = Rect2(Vector2.ZERO, Vector2.ONE * 2048.0):
 	set(value):
 		clip_region = value
@@ -31,6 +29,9 @@ func get_alphaf() -> float:
 
 
 func _process(_delta: float) -> void:
+	if not grid:
+		return
+
 	var spalpha := get_alpha() * Vector2(grid.spacing_x, grid.spacing_y)
 	var axy := Vector2i(1, 1)
 	if spalpha.x > 1.0:
@@ -52,18 +53,24 @@ func _process(_delta: float) -> void:
 func _draw() -> void:
 	if not grid:
 		return
-	var col0 := Color(0.05, 0.95, 0.15)
-	var col1 := Color(0.95, 0.1, 0.05)
+	var line_colour := PackedColorArray([
+		Color(0.2, 0.8, 0.4, 0.2),
+		Color(0.9, 0.2, 0.4, 0.2),
+		Color(0.05, 0.95, 0.15),
+		Color(0.95, 0.1, 0.05),
+	])
+	var line_width := PackedFloat64Array([])
+	var skip := 0
 	if _alpha.x == 0 && _alpha.y == 0:
 		return
 	elif _alpha.x == 1 && _alpha.y == 1:
-		draw_rect(clip_region, col0.lerp(col1, 0.5))
-		return
+		skip = 2
 
 	var gridlines := grid.get_lines(clip_region)
-	if gridlines.size() == 2:
-		draw_multiline(gridlines[0], col0)
-		draw_multiline(gridlines[1], col1)
+	for i in range(skip, gridlines.size()):
+		var col := line_colour[i] if i < line_colour.size() else Color.WHITE
+		var width := line_width[i] if i < line_width.size() else -1.0
+		draw_multiline(gridlines[i], col, width)
 
 
 func _on_grid_changed() -> void:
