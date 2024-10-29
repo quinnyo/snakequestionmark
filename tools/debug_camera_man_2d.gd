@@ -1,5 +1,10 @@
 extends Node
 
+# TODO:
+# [ ] actually clone existing camera properties and have that work
+# [ ] disable existing active camera/s when activating debug cam
+# [ ] restore overridden camera state when deactivating debug cam
+
 
 var _instance: DebugCamera2D
 var _inactive: Dictionary = {}
