@@ -1,0 +1,26 @@
+[gd_scene load_steps=7 format=3 uid="uid://cfu0bd87bwi4l"]
+
+[ext_resource type="Script" path="res://board/test/test_hex.gd" id="1_60k63"]
+[ext_resource type="Script" path="res://board/phield_hex.gd" id="2_1ekuh"]
+[ext_resource type="Script" path="res://board/board_2d.gd" id="2_1wwkj"]
+[ext_resource type="Script" path="res://board/layout_hex.gd" id="5_wldvx"]
+
+[sub_resource type="Resource" id="Resource_sx157"]
+script = ExtResource("2_1ekuh")
+
+[sub_resource type="Resource" id="Resource_5qtao"]
+script = ExtResource("5_wldvx")
+orientation = 0
+origin = Vector2(0, 0)
+size = Vector2(24, 24)
+border_width = Vector2(4, 4)
+start_angle = 0.5
+xf = Transform2D(1.73205, 0, 0.866025, 1.5, 0, 0)
+
+[node name="TestHex" type="Node2D"]
+script = ExtResource("1_60k63")
+
+[node name="Board2D" type="Node2D" parent="."]
+script = ExtResource("2_1wwkj")
+phield = SubResource("Resource_sx157")
+layout = SubResource("Resource_5qtao")
