@@ -22,13 +22,13 @@ var atail: SnakeSegment:
 		return atail
 
 
-func heading() -> Vector2i:
+func heading() -> Vector3i:
 	if ahead:
 		return ahead.cpos - cpos
 	elif atail:
 		return cpos - atail.cpos
 	else:
-		return Vector2i.ZERO
+		return Vector3i.ZERO
 
 
 func is_face() -> bool:
@@ -84,7 +84,9 @@ func _draw() -> void:
 			draw_circle(Vector2.ZERO, radius + 1, Color.DARK_OLIVE_GREEN, true, -1.0, true)
 			draw_circle(Vector2.ZERO, radius - 1, Color.OLIVE, true, -1.0, true)
 
-			var udir := Vector2(heading()).normalized()
+			# TODO: transform 'heading' via phield/layout
+			var cdir := heading()
+			var udir := Vector2(cdir.x, cdir.y).normalized()
 			var angle := Vector2.DOWN.angle_to(udir)
 			var d := udir * radius * 0.8
 			var xf := Transform2D(angle, d).scaled_local(Vector2(0.8, 1.0))

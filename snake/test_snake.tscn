@@ -1,19 +1,32 @@
-[gd_scene load_steps=8 format=3 uid="uid://bjuycyd5amrj4"]
+[gd_scene load_steps=11 format=3 uid="uid://bjuycyd5amrj4"]
 
 [ext_resource type="Script" path="res://turn_game/metronome.gd" id="1_klmp7"]
 [ext_resource type="Script" path="res://board/board_2d.gd" id="1_wo4qh"]
 [ext_resource type="Script" path="res://board/phield_square.gd" id="2_gpwql"]
 [ext_resource type="Script" path="res://snake/controller.gd" id="3_ju3ps"]
 [ext_resource type="Script" path="res://board/layout.gd" id="3_ljla4"]
+[ext_resource type="Script" path="res://tools/agrid_2d.gd" id="6_t5ceo"]
+[ext_resource type="Script" path="res://tools/agrid.gd" id="7_envri"]
 
-[sub_resource type="Resource" id="Resource_g6vgl"]
+[sub_resource type="Resource" id="Resource_qrvp2"]
 script = ExtResource("2_gpwql")
+double_coords = false
 
-[sub_resource type="Resource" id="Resource_4kin1"]
+[sub_resource type="Resource" id="Resource_xdqk3"]
 script = ExtResource("3_ljla4")
-origin = Vector2(0, 0)
+origin = Vector2(16, 16)
 size = Vector2(32, 32)
-border_width = Vector2(4, 4)
+border_width = Vector2(2, 2)
+start_angle = 0.0
+xf = Transform2D(1, 0, 0, 1, 0, 0)
+
+[sub_resource type="Resource" id="Resource_evk1o"]
+script = ExtResource("7_envri")
+offset_x = 0.0
+offset_y = 0.0
+spacing_x = 8.0
+spacing_y = 8.0
+bold_interval = 8
 
 [node name="test_snake" type="Node2D"]
 
@@ -22,10 +35,21 @@ script = ExtResource("1_klmp7")
 
 [node name="Board2D" type="Node2D" parent="."]
 script = ExtResource("1_wo4qh")
-phield = SubResource("Resource_g6vgl")
-layout = SubResource("Resource_4kin1")
+phield = SubResource("Resource_qrvp2")
+layout = SubResource("Resource_xdqk3")
 
 [node name="SnakeController" type="Node2D" parent="Board2D"]
 script = ExtResource("3_ju3ps")
+step_size = 1
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(361, 190)
+zoom = Vector2(1.5, 1.5)
+
+[node name="Agrid2D" type="Node2D" parent="."]
+visible = false
+self_modulate = Color(1, 1, 1, 1.5)
+script = ExtResource("6_t5ceo")
+grid = SubResource("Resource_evk1o")
 
 [connection signal="tick" from="Metronome" to="Board2D/SnakeController" method="_on_metronome_tick"]

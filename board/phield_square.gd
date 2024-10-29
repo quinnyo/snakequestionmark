@@ -1,48 +1,59 @@
+@tool
 class_name PhieldSquare extends Phield
-## A square grid with first-class borders and corners.
 
 
-func c_is_face(c: Vector2i) -> bool:
-	return c.x & 1 && c.y & 1
+const DIRECTIONS: Array[Vector3i] = [
+	Vector3i(1, 0, 0), Vector3i(0, 1, 0), Vector3i(-1, 0, 0), Vector3i(0, -1, 0)
+]
+const CORNERS: Array[Vector2] = [
+	Vector2(+0.5, +0.5),
+	Vector2(-0.5, +0.5),
+	Vector2(-0.5, -0.5),
+	Vector2(+0.5, -0.5)
+]
 
 
-func c_is_border(c: Vector2i) -> bool:
-	return c.x & 1 != c.y & 1
+@export var double_coords: bool = false:
+	set(value):
+		double_coords = value
+		emit_changed()
 
 
-func c_is_corner(c: Vector2i) -> bool:
-	return !(c.x & 1 || c.y & 1)
+func is_face(c: Vector3i) -> bool:
+	if double_coords:
+		return c.x & 1 && c.y & 1
+	return true
 
 
-## Normalise c to face coordinate.
-func c_face(c: Vector2i) -> Vector2i:
-	return Vector2i(c.x | 1, c.y | 1)
+func is_border(c: Vector3i) -> bool:
+	if double_coords:
+		return c.x & 1 != c.y & 1
+	return false
 
 
-func c_rface(c: Vector2i) -> Vector2i:
-	return Vector2i(c.x - 1 | 1, c.y - 1 | 1)
+func is_corner(c: Vector3i) -> bool:
+	if double_coords:
+		return !(c.x & 1 || c.y & 1)
+	return false
 
 
-func origin(c: Vector2i, layout: PhieldLayout) -> Vector2:
-	# as corner position initially
-	var pos := Vector2(c / 2) * layout.size
-	# add border/margin if c is face coord
-	if c.x & 1:
-		pos.x += layout.border_width.x
-	if c.y & 1:
-		pos.y += layout.border_width.y
-	return pos
+func direction(dir: int) -> Vector3i:
+	return DIRECTIONS[dir % DIRECTIONS.size()]
 
 
-func centre(c: Vector2i, layout: PhieldLayout) -> Vector2:
-	var w := layout.size.x - layout.border_width.x if c.x & 1 == 1 else layout.border_width.x
-	var h := layout.size.y - layout.border_width.y if c.y & 1 == 1 else layout.border_width.y
-	var p := origin(c, layout)
-	return p + Vector2(w, h) / 2.0
+func layout_vertices(c: Vector3i, layout: PhieldLayout) -> PackedVector2Array:
+	var vertices := PackedVector2Array()
+	vertices.resize(4)
+	var centre := layout_centre(c, layout)
+	for i in range(4):
+		var offset := corner_offset(i, layout)
+		vertices[i] = centre + offset
+	return vertices
 
 
-func vertices(c: Vector2i, layout: PhieldLayout) -> PackedVector2Array:
-	var w := layout.size.x - layout.border_width.x if c.x & 1 == 1 else layout.border_width.x
-	var h := layout.size.y - layout.border_width.y if c.y & 1 == 1 else layout.border_width.y
-	var p := origin(c, layout)
-	return PackedVector2Array([p + Vector2(w, h), p + Vector2(0, h), p, p + Vector2(w, 0)])
+func layout_centre(c: Vector3i, layout: PhieldLayout) -> Vector2:
+	return layout.xform(Vector2(c.x, c.y))
+
+
+func corner_offset(corner: int, layout: PhieldLayout) -> Vector2:
+	return (layout.size - layout.border_width) * CORNERS[corner % CORNERS.size()]

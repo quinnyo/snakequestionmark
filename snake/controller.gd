@@ -29,7 +29,7 @@ func append_segment(s: SnakeSegment) -> void:
 	_segs.append(s)
 
 
-func grow(dir: Vector2i = Vector2i.ZERO) -> void:
+func grow(dir: Vector3i = Vector3i.ZERO) -> void:
 	if length() == 0:
 		push_error("cannot grow() zero length snake")
 		return
@@ -42,8 +42,8 @@ func grow(dir: Vector2i = Vector2i.ZERO) -> void:
 	append_segment(s)
 
 
-func start(head: Vector2i, add_length: int = 0):
-	var dir := Vector2i.DOWN * step_size
+func start(head: Vector3i, add_length: int = 0):
+	var dir := Vector3i.DOWN * step_size
 	clear()
 	var segface := SnakeSegment.new()
 	segface.cpos = head + dir
@@ -54,7 +54,7 @@ func start(head: Vector2i, add_length: int = 0):
 		grow()
 
 
-func try_face_direction(d: Vector2i) -> void:
+func try_face_direction(d: Vector3i) -> void:
 	if length() < 2:
 		return
 	if d.x == 0 && d.y == 0:
@@ -105,7 +105,7 @@ func crash() -> void:
 	crashed.emit()
 
 
-func can_move_to(c: Vector2i) -> bool:
+func can_move_to(c: Vector3i) -> bool:
 	if !_board.is_open(c):
 		return false
 	for i in range(1, length()):
@@ -114,28 +114,28 @@ func can_move_to(c: Vector2i) -> bool:
 	return true
 
 
-func _seg_cpos(idx: int) -> Vector2i:
+func _seg_cpos(idx: int) -> Vector3i:
 	return _segs[idx].cpos
 
 
-func _seg_set_cpos(idx: int, c: Vector2i) -> void:
+func _seg_set_cpos(idx: int, c: Vector3i) -> void:
 	_segs[idx].cpos = c
 	_segs[idx].queue_redraw()
 
 
-func _seg_heading(idx: int) -> Vector2i:
+func _seg_heading(idx: int) -> Vector3i:
 	return _segs[idx].heading()
 
 
 func _ready() -> void:
-	start(Vector2i(7, 5), 5)
+	start(Vector3i(3, 3, 0), 5)
 
 
 func _process(_delta: float) -> void:
 	if _crashed:
 		pass
 	else:
-		var dir := Vector2i.ZERO
+		var dir := Vector3i.ZERO
 		if Input.is_action_pressed("ui_right"):
 			dir.x += 1
 		if Input.is_action_pressed("ui_left"):

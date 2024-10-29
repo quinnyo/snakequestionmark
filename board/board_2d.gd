@@ -1,42 +1,66 @@
+@tool
 class_name Board2D extends Node2D
 
-@export var phield: PhieldSquare
-@export var layout: PhieldLayout
+@export var phield: Phield:
+	set(value):
+		if phield && phield.changed.is_connected(_refresh):
+			phield.changed.disconnect(_refresh)
+		phield = value
+		phield.changed.connect(_refresh)
+		_refresh()
+@export var layout: PhieldLayout:
+	set(value):
+		if layout && layout.changed.is_connected(_refresh):
+			layout.changed.disconnect(_refresh)
+		layout = value
+		layout.changed.connect(_refresh)
+		_refresh()
 
-## Bounding size in _cells_ (columns, rows).
+## Bounding region low bound in phield coordinates.
+@export var origin: Vector2i = Vector2i.ZERO:
+	set(value):
+		origin = value
+		_refresh()
+## Bounding region size in phield coordinates.
 @export var size: Vector2i = Vector2i(10, 10):
 	set(value):
 		size = value
-		_refresh_bounds()
-## If true, the border coordinates along the boundary will be considered in-bounds.
-@export var boundary_includes_borders: bool = false:
-	set(value):
-		boundary_includes_borders = value
-		_refresh_bounds()
+		_refresh()
 
 
 var _bounds: Rect2i
 
 
-func _refresh_bounds() -> void:
-	var r := Rect2i(Vector2i.ONE, Vector2i(size * 2 - Vector2i.ONE))
-	_bounds = r.grow(1) if boundary_includes_borders else r
+func _refresh() -> void:
+	_bounds = Rect2i(origin, size)
 	queue_redraw()
 
 
-func is_out_of_bounds(c: Vector2i) -> bool:
-	return !_bounds.has_point(c)
+func is_out_of_bounds(c: Vector3i) -> bool:
+	return !_bounds.has_point(Vector2i(c.x, c.y))
 
 
-func cell_position(c: Vector2i) -> Vector2:
-	return phield.origin(c, layout)
+func pose_global(c: Vector3i) -> Transform2D:
+	if not phield:
+		push_error("Board2D phield is null")
+		return Transform2D()
+	if not layout:
+		push_error("Board2D layout is null")
+		return Transform2D()
+	return global_transform.translated_local(phield.layout_centre(c, layout))
 
 
-func cell_centre(c: Vector2i) -> Vector2:
-	return phield.centre(c, layout)
+func cell_centre(c: Vector3i) -> Vector2:
+	if not phield:
+		push_error("Board2D phield is null")
+		return Vector2()
+	if not layout:
+		push_error("Board2D layout is null")
+		return Vector2()
+	return phield.layout_centre(c, layout)
 
 
-func is_open(c: Vector2i) -> bool:
+func is_open(c: Vector3i) -> bool:
 	if is_out_of_bounds(c):
 		return false
 	return true
@@ -50,22 +74,66 @@ static func find_parent_board(node: Node) -> Board2D:
 
 
 func _ready() -> void:
-	_refresh_bounds()
+	_refresh()
 
 
 func _draw() -> void:
-	if !phield:
+	if not phield or not layout:
 		return
 
 	var cmin := _bounds.position
 	var cmax := _bounds.end
 	for y in range(cmin.y, cmax.y):
 		for x in range(cmin.x, cmax.x):
-			var c := Vector2i(x, y)
-			var color := Color.STEEL_BLUE
-			if phield.c_is_border(c):
-				color = Color.POWDER_BLUE
-			elif phield.c_is_corner(c):
-				color = Color.CADET_BLUE
-			var points := phield.vertices(c, layout)
+			var c := Vector3i(x, y, 0)
+			var color := Color.AQUA
+			if phield.is_face(c):
+				color = Color.STEEL_BLUE
+			else:
+				print("not face: %s" % [ c ])
+			var points := phield.layout_vertices(c, layout)
+			if points.size() < 3:
+				continue
 			draw_colored_polygon(points, color)
+
+	_debug_draw()
+
+
+func _debug_draw() -> void:
+	var cmin := _bounds.position
+	var cmax := _bounds.end
+	for y in range(cmin.y, cmax.y):
+		for x in range(cmin.x, cmax.x):
+			var c := Vector3i(x, y, 0)
+			_debug_draw_element(c)
+
+
+func _debug_draw_element(c: Vector3i) -> void:
+	var p := phield.layout_centre(c, layout)
+
+	var points := phield.layout_vertices(c, layout)
+	if points.size() >= 3:
+		points.append(points[0])
+		draw_polyline(points, Color(0.85, 0.95, 0.75, 0.5))
+	else:
+		draw_line(p, p + Vector2(10, 0), Color.RED)
+		draw_line(p, p + Vector2(0, 10), Color.RED)
+
+	var color := Color.RED
+	var radius := 2.0
+	var fill := false
+	var width := 1.0
+	if phield.is_face(c):
+		color = Color.CORNSILK
+		radius = 8.0
+	elif phield.is_border(c):
+		color = Color.CORAL
+		radius = 4.0
+	elif phield.is_corner(c):
+		color = Color.AQUA
+		radius = 3.0
+	else:
+		color = Color.MAGENTA
+
+	draw_circle(p, radius + 0.5, Color.BLACK, false, width + 2.5, true)
+	draw_circle(p, radius, color, fill, width, true)
