@@ -1,0 +1,10 @@
+[gd_resource type="LabelSettings" load_steps=2 format=3 uid="uid://c1i0606lqt1ot"]
+
+[sub_resource type="SystemFont" id="SystemFont_426jx"]
+font_names = PackedStringArray("Consolas", "Monospace")
+multichannel_signed_distance_field = true
+
+[resource]
+font = SubResource("SystemFont_426jx")
+font_color = Color(0.944529, 0.941789, 0.826431, 1)
+shadow_color = Color(0, 0, 0, 0.745098)

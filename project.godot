@@ -18,6 +18,8 @@ config/icon="res://icon.svg"
 [autoload]
 
 DebugCameraMan2D="*res://tools/debug_camera_man_2d.gd"
+BuggyG="*res://tools/buggy.gd"
+Overlayer="*res://tools/overlayer.gd"
 
 [display]
 
