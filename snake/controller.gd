@@ -2,15 +2,37 @@ class_name SnakeController extends Cellular
 
 signal crashed()
 
-@export var allow_diagonals: bool = false
-@export var step_size: int = 2
+enum Flag {
+	STEER_DIAGONAL,
+	STEER_180,
+	STEER_AT_WALL,
+	STEER_AT_SELF,
 
-@export var prevent_steering_180: bool = true
-@export var prevent_steering_at_wall: bool = false
-@export var prevent_steering_at_self: bool = false
+	_COUNT,
+	STEERF_DEFAULT = (1 << STEER_AT_WALL) | (1 << STEER_AT_SELF),
+	DEFAULT = STEERF_DEFAULT
+}
+
+@export_flags(
+	"Steer Diagonal", "Steer 180", "Steer At Wall", "Steer At Self"
+) var flags: int = Flag.DEFAULT
+
+@export var step_size: int = 2
 
 var _crashed: bool = false
 var _segs: Array[SnakeSegment] = []
+
+
+func flag(f: Flag) -> bool:
+	return flags & (1 << f)
+
+
+func flag_set(f: Flag) -> void:
+	flags |= (1 << f)
+
+
+func flag_clear(f: Flag) -> void:
+	flags &= ~(1 << f)
 
 
 func clear():
@@ -59,17 +81,18 @@ func try_face_direction(d: Vector3i) -> void:
 		return
 	if d.x == 0 && d.y == 0:
 		return
-	if !allow_diagonals && d.x != 0 && d.y != 0:
+	if !flag(Flag.STEER_DIAGONAL) && d.x != 0 && d.y != 0:
 		return
+	if !flag(Flag.STEER_180) && length() > 2:
+		if d.sign() == -_seg_heading(2).sign():
+			return
 	d = d.sign() * step_size
 	var newpos := _seg_cpos(1) + d
-	if prevent_steering_180 && length() > 2 && _seg_cpos(2) == newpos:
-		return
-	if prevent_steering_at_self:
+	if !flag(Flag.STEER_AT_SELF):
 		for seg in _segs:
 			if seg.cpos == newpos:
 				return
-	if prevent_steering_at_wall && !_board.is_open(newpos):
+	if !flag(Flag.STEER_AT_WALL) && !_board.is_open(newpos):
 		return
 	_seg_set_cpos(0, newpos)
 
@@ -136,13 +159,13 @@ func _process(_delta: float) -> void:
 		pass
 	else:
 		var dir := Vector3i.ZERO
-		if Input.is_action_pressed("ui_right"):
+		if Input.is_action_just_pressed("ui_right"):
 			dir.x += 1
-		if Input.is_action_pressed("ui_left"):
+		if Input.is_action_just_pressed("ui_left"):
 			dir.x -= 1
-		if Input.is_action_pressed("ui_down"):
+		if Input.is_action_just_pressed("ui_down"):
 			dir.y += 1
-		if Input.is_action_pressed("ui_up"):
+		if Input.is_action_just_pressed("ui_up"):
 			dir.y -= 1
 		try_face_direction(dir * step_size)
 
