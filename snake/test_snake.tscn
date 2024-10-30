@@ -42,7 +42,6 @@ layout = SubResource("Resource_xdqk3")
 
 [node name="SnakeController" type="Node2D" parent="Board2D"]
 script = ExtResource("3_ju3ps")
-step_size = 1
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(361, 190)
@@ -54,4 +53,5 @@ self_modulate = Color(1, 1, 1, 1.5)
 script = ExtResource("6_t5ceo")
 grid = SubResource("Resource_evk1o")
 
-[connection signal="tick" from="Metronome" to="Board2D/SnakeController" method="_on_metronome_tick"]
+[connection signal="tick" from="Metronome" to="." method="_on_metronome_tick"]
+[connection signal="crashed" from="Board2D/SnakeController" to="." method="_on_snake_crashed"]

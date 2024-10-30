@@ -8,17 +8,23 @@ enum Flag {
 	STEER_AT_WALL,
 	STEER_AT_SELF,
 
+	MOTION_AUTO,
+	MOTION_IMMEDIATE,
+
 	_COUNT,
 	STEERF_DEFAULT = (1 << STEER_AT_WALL) | (1 << STEER_AT_SELF),
-	DEFAULT = STEERF_DEFAULT
+	MOTIONF_DEFAULT = (1 << MOTION_AUTO),
+	DEFAULT = STEERF_DEFAULT | MOTIONF_DEFAULT
 }
 
 @export_flags(
-	"Steer Diagonal", "Steer 180", "Steer At Wall", "Steer At Self"
+	"Steer Diagonal", "Steer 180", "Steer At Wall", "Steer At Self",
+	"Motion Auto", "Motion Immediate"
 ) var flags: int = Flag.DEFAULT
 
-@export var step_size: int = 2
+@export var step_size: int = 1
 
+var action_points: int = 0
 var _crashed: bool = false
 var _segs: Array[SnakeSegment] = []
 
@@ -76,56 +82,75 @@ func start(head: Vector3i, add_length: int = 0):
 		grow()
 
 
-func try_face_direction(d: Vector3i) -> void:
-	if length() < 2:
-		return
-	if d.x == 0 && d.y == 0:
-		return
-	if !flag(Flag.STEER_DIAGONAL) && d.x != 0 && d.y != 0:
-		return
+func try_set_heading(d: Vector3i) -> bool:
+	if _crashed:
+		return false
+	d = d.sign() * step_size
+	if !check_motion_delta(d):
+		return false
 	if !flag(Flag.STEER_180) && length() > 2:
 		if d.sign() == -_seg_heading(2).sign():
-			return
-	d = d.sign() * step_size
+			return false
 	var newpos := _seg_cpos(1) + d
 	if !flag(Flag.STEER_AT_SELF):
 		for seg in _segs:
 			if seg.cpos == newpos:
-				return
+				return false
 	if !flag(Flag.STEER_AT_WALL) && !_board.is_open(newpos):
-		return
+		return false
 	_seg_set_cpos(0, newpos)
+	return true
 
 
-func step() -> void:
+func check_motion_delta(d: Vector3i) -> bool:
+	if length() < 2:
+		return false
+	if d.x == 0 && d.y == 0:
+		return false
+	if d.z != 0:
+		return false
+	if !flag(Flag.STEER_DIAGONAL) && d.x != 0 && d.y != 0:
+		return false
+	if d.sign() * step_size != d:
+		return false
+	return true
+
+
+func act() -> void:
 	if _crashed:
 		pass
 	else:
 		motion()
 
 
+## Move on current heading, if possible.
 func motion() -> void:
 	if length() < 2:
 		return
+	if action_points <= 0:
+		return
+	if check_motion_delta(_seg_heading(0)):
+		motion_move()
+		action_points -= 1
 
-	# If forward position is not empty, STOP?
-	var nextcpos := _seg_cpos(0)
-	if !can_move_to(nextcpos):
+
+## Snake forward.
+func motion_move() -> void:
+	if !can_move_to(_seg_cpos(0)):
 		# ????: Try alternatives?
-		# ????: If no open cells, STOP???
 		crash()
 		return
-
-	# MOVE
 	var head_forward := _seg_heading(1)
 	for seg in range(length() - 1, 0, -1):
 		_seg_set_cpos(seg, _seg_cpos(seg - 1))
-	_seg_set_cpos(0, nextcpos + head_forward)
+	if flag(Flag.MOTION_AUTO):
+		try_set_heading(head_forward)
 
 
 func crash() -> void:
 	_crashed = true
 	crashed.emit()
+	BuggyG.say(self, "snake/status", "CRASHED")
 
 
 func can_move_to(c: Vector3i) -> bool:
@@ -152,23 +177,3 @@ func _seg_heading(idx: int) -> Vector3i:
 
 func _ready() -> void:
 	start(Vector3i(3, 3, 0), 5)
-
-
-func _process(_delta: float) -> void:
-	if _crashed:
-		pass
-	else:
-		var dir := Vector3i.ZERO
-		if Input.is_action_just_pressed("ui_right"):
-			dir.x += 1
-		if Input.is_action_just_pressed("ui_left"):
-			dir.x -= 1
-		if Input.is_action_just_pressed("ui_down"):
-			dir.y += 1
-		if Input.is_action_just_pressed("ui_up"):
-			dir.y -= 1
-		try_face_direction(dir * step_size)
-
-
-func _on_metronome_tick(_n: int) -> void:
-	step()
