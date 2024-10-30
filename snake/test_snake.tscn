@@ -1,6 +1,7 @@
-[gd_scene load_steps=11 format=3 uid="uid://bjuycyd5amrj4"]
+[gd_scene load_steps=12 format=3 uid="uid://bjuycyd5amrj4"]
 
 [ext_resource type="Script" path="res://turn_game/metronome.gd" id="1_klmp7"]
+[ext_resource type="Script" path="res://snake/test_snake.gd" id="1_okjqn"]
 [ext_resource type="Script" path="res://board/board_2d.gd" id="1_wo4qh"]
 [ext_resource type="Script" path="res://board/phield_square.gd" id="2_gpwql"]
 [ext_resource type="Script" path="res://snake/controller.gd" id="3_ju3ps"]
@@ -29,6 +30,7 @@ spacing_y = 8.0
 bold_interval = 8
 
 [node name="test_snake" type="Node2D"]
+script = ExtResource("1_okjqn")
 
 [node name="Metronome" type="Node" parent="."]
 script = ExtResource("1_klmp7")
