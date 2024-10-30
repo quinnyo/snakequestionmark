@@ -22,6 +22,10 @@ signal tick(n: int)
 @export_storage var _tick_count: int = 0
 
 
+func finish_tick() -> void:
+	_t_accum = period
+
+
 func _ready() -> void:
 	if !custom_process_priority:
 		process_priority = PROCESS_PRIORITY
