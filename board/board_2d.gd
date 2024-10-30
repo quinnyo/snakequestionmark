@@ -36,26 +36,28 @@ func _refresh() -> void:
 	queue_redraw()
 
 
+func _assert_config() -> bool:
+	if not phield:
+		push_error("Board2D phield is null")
+		return false
+	if not layout:
+		push_error("Board2D layout is null")
+		return false
+	return true
+
+
 func is_out_of_bounds(c: Vector3i) -> bool:
 	return !_bounds.has_point(Vector2i(c.x, c.y))
 
 
 func pose_global(c: Vector3i) -> Transform2D:
-	if not phield:
-		push_error("Board2D phield is null")
-		return Transform2D()
-	if not layout:
-		push_error("Board2D layout is null")
+	if !_assert_config():
 		return Transform2D()
 	return global_transform.translated_local(phield.layout_centre(c, layout))
 
 
 func cell_centre(c: Vector3i) -> Vector2:
-	if not phield:
-		push_error("Board2D phield is null")
-		return Vector2()
-	if not layout:
-		push_error("Board2D layout is null")
+	if !_assert_config():
 		return Vector2()
 	return phield.layout_centre(c, layout)
 
