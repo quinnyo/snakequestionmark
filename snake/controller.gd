@@ -43,7 +43,7 @@ func grow(dir: Vector3i = Vector3i.ZERO) -> void:
 
 
 func start(head: Vector3i, add_length: int = 0):
-	var dir := Vector3i.DOWN * step_size
+	var dir := Vector3i(0, 1, 0) * step_size
 	clear()
 	var segface := SnakeSegment.new()
 	segface.cpos = head + dir
