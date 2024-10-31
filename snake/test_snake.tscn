@@ -42,11 +42,11 @@ layout = SubResource("Resource_xdqk3")
 
 [node name="SnakeController" type="Node2D" parent="Board2D"]
 script = ExtResource("3_ju3ps")
+flags = 60
 ghost = true
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(361, 190)
-zoom = Vector2(1.5, 1.5)
 
 [node name="Agrid2D" type="Node2D" parent="."]
 visible = false

@@ -59,6 +59,7 @@ func append_segment(s: SnakeSegment) -> void:
 	s.name = "seg_%d-%d" % [ _generation, _segs.size() ]
 	add_child(s)
 	_segs.append(s)
+	BuggyG.say(self, "length", "%d" % [ length() - 1 ])
 
 
 func grow(dir: Vector3i = Vector3i.ZERO) -> void:
@@ -74,16 +75,22 @@ func grow(dir: Vector3i = Vector3i.ZERO) -> void:
 	append_segment(s)
 
 
-func start(head: Vector3i, add_length: int = 0):
-	var dir := Vector3i(0, 1, 0) * step_size
+func start(c: Vector3i, dir: Vector3i, add_length: int = 0):
 	clear()
+	dir = dir.sign() * step_size
 	var segface := SnakeSegment.new()
-	segface.cpos = head + dir
+	segface.cpos = c + dir
 	segface.type = SnakeSegment.SegmentType.FACE
 	append_segment(segface)
 	grow(dir)
 	for i in range(add_length):
 		grow()
+
+
+func start_auto() -> void:
+	var p := _board.origin - Vector2i(1, 0) # + _board.size / 2
+	var d := Vector3i(1, 0, 0)
+	start(Vector3i(p.x, p.y, 0), d, _get_next_length())
 
 
 func try_set_heading(d: Vector3i) -> bool:
@@ -125,6 +132,9 @@ func act() -> void:
 		if length():
 			var seg := _segs.pop_front() as SnakeSegment
 			seg.stone = true
+			seg.reparent(get_parent())
+		else:
+			start_auto()
 	else:
 		motion()
 
@@ -182,9 +192,13 @@ func _seg_heading(idx: int) -> Vector3i:
 	return _segs[idx].heading()
 
 
+func _get_next_length() -> int:
+	return randi_range(2, 7)
+
+
 func _init() -> void:
 	ghost = true
 
 
 func _ready() -> void:
-	start(Vector3i(3, 3, 0), 5)
+	start_auto()
