@@ -49,9 +49,7 @@ zoom = Vector2(1.5, 1.5)
 
 [node name="Agrid2D" type="Node2D" parent="."]
 visible = false
-self_modulate = Color(1, 1, 1, 1.5)
 script = ExtResource("6_t5ceo")
 grid = SubResource("Resource_evk1o")
 
 [connection signal="tick" from="Metronome" to="." method="_on_metronome_tick"]
-[connection signal="crashed" from="Board2D/SnakeController" to="." method="_on_snake_crashed"]

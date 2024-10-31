@@ -4,8 +4,7 @@ class_name Metronome extends Node
 const PROCESS_PRIORITY := -9
 
 
-signal tick(n: int)
-signal beat(bar: int, b: int)
+signal tick(t: int, bar: int, beat: int)
 
 
 ## time between ticks in seconds
@@ -30,9 +29,8 @@ func finish_tick() -> void:
 
 
 func _tick() -> void:
-	tick.emit(_tick_count)
 	var b := _tick_count % bar_div
-	beat.emit(_bar_count, b)
+	tick.emit(_tick_count, _bar_count, b)
 	_tick_count += 1
 	if _tick_count % bar_div == 0:
 		_bar_count += 1

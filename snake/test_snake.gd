@@ -5,10 +5,11 @@ extends Node2D
 @onready var snake: SnakeController = $Board2D/SnakeController as SnakeController
 
 
-func tick(n: int) -> void:
-	BuggyG.say(self, "tick", str(n))
-	_action()
-	_post_action()
+func tick(_t: int, bar: int, beat: int) -> void:
+	BuggyG.say(self, "turn", "%d:%d" % [ bar, beat ])
+	if beat == 0:
+		_action()
+		_post_action()
 
 
 func _action() -> void:
@@ -40,9 +41,5 @@ func _input(event: InputEvent) -> void:
 		get_tree().reload_current_scene()
 
 
-func _on_metronome_tick(n: int) -> void:
-	tick(n)
-
-
-func _on_snake_crashed() -> void:
-	metronome.process_mode = Node.PROCESS_MODE_DISABLED
+func _on_metronome_tick(t: int, bar: int, beat: int) -> void:
+	tick(t, bar, beat)
