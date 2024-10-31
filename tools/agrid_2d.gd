@@ -29,6 +29,8 @@ func get_alphaf() -> float:
 
 
 func _process(_delta: float) -> void:
+	if not visible:
+		return
 	if not grid:
 		return
 
@@ -47,7 +49,10 @@ func _process(_delta: float) -> void:
 		queue_redraw()
 		_alpha = axy
 
-	self_modulate.a = get_alphaf()
+	# set transparency with self_modulate.
+	# via RenderingServer to avoid changing node's properties in editor/scene.
+	var mod := Color(1, 1, 1, clampf(get_alphaf(), 0.0, 1.0))
+	RenderingServer.canvas_item_set_self_modulate(get_canvas_item(), mod)
 
 
 func _draw() -> void:
