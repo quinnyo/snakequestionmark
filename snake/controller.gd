@@ -28,6 +28,8 @@ var action_points: int = 0
 var _crashed: bool = false
 var _segs: Array[SnakeSegment] = []
 
+var _generation: int
+
 
 func flag(f: Flag) -> bool:
 	return flags & (1 << f)
@@ -46,6 +48,7 @@ func clear():
 	for child in _segs:
 		child.queue_free()
 	_segs.clear()
+	_generation += 1
 
 
 func length() -> int:
@@ -53,6 +56,7 @@ func length() -> int:
 
 
 func append_segment(s: SnakeSegment) -> void:
+	s.name = "seg_%d-%d" % [ _generation, _segs.size() ]
 	add_child(s)
 	_segs.append(s)
 
@@ -160,9 +164,8 @@ func crash() -> void:
 func can_move_to(c: Vector3i) -> bool:
 	if !_board.is_open(c):
 		return false
-	for i in range(1, length()):
-		if _seg_cpos(i) == c:
-			return false
+	if _board.occupant(c):
+		return false
 	return true
 
 
@@ -177,6 +180,10 @@ func _seg_set_cpos(idx: int, c: Vector3i) -> void:
 
 func _seg_heading(idx: int) -> Vector3i:
 	return _segs[idx].heading()
+
+
+func _init() -> void:
+	ghost = true
 
 
 func _ready() -> void:

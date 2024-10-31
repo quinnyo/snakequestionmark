@@ -4,7 +4,7 @@ class_name Cellular extends Node2D
 	set(value):
 		cpos = value
 		refresh()
-
+@export var ghost: bool = false
 
 var _board: Board2D
 
@@ -16,3 +16,10 @@ func refresh() -> void:
 
 func _enter_tree() -> void:
 	_board = Board2D.find_parent_board(self)
+	if _board:
+		_board.register(self)
+
+
+func _exit_tree() -> void:
+	if _board:
+		_board.deregister(self)

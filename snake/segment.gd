@@ -7,6 +7,7 @@ enum SegmentType { FACE, HEAD, BODY, TAIL }
 @export var type: SegmentType = SegmentType.TAIL:
 	set(value):
 		type = value
+		ghost = type == SegmentType.FACE
 		queue_redraw()
 
 var stone: bool = false:

@@ -29,6 +29,7 @@ class_name Board2D extends Node2D
 
 
 var _bounds: Rect2i
+var _entities: Array[Cellular]
 
 
 func _refresh() -> void:
@@ -66,6 +67,27 @@ func is_open(c: Vector3i) -> bool:
 	if is_out_of_bounds(c):
 		return false
 	return true
+
+
+## Returns the first occupant found at `c`
+func occupant(c: Vector3i, include_ghost: bool = false) -> Cellular:
+	for ent in _entities:
+		if (include_ghost || !ent.ghost) && ent.cpos == c:
+			return ent
+	return null
+
+
+func register(node: Cellular) -> void:
+	if _entities.has(node):
+		return
+	_entities.append(node)
+
+
+func deregister(node: Cellular) -> void:
+	var idx := _entities.find(node)
+	if idx != -1:
+		_entities[idx] = _entities[-1]
+		_entities.pop_back()
 
 
 static func find_parent_board(node: Node) -> Board2D:
