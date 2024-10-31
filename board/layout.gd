@@ -5,11 +5,11 @@ class_name PhieldLayout extends Resource
 	set(value):
 		origin = value
 		emit_changed()
-@export var size: Vector2 = Vector2(32, 32):
+@export_custom(PROPERTY_HINT_LINK, "") var size: Vector2 = Vector2(32, 32):
 	set(value):
 		size = value
 		emit_changed()
-@export var border_width: Vector2 = Vector2(8, 8):
+@export_custom(PROPERTY_HINT_LINK, "") var border_width: Vector2 = Vector2(8, 8):
 	set(value):
 		border_width = value
 		emit_changed()
