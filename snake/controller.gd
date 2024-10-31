@@ -59,7 +59,7 @@ func append_segment(s: SnakeSegment) -> void:
 	s.name = "seg_%d-%d" % [ _generation, _segs.size() ]
 	add_child(s)
 	_segs.append(s)
-	BuggyG.say(self, "length", "%d" % [ length() - 1 ])
+	BuggyG.say(self, "snake", "%d" % [ length() - 1 ])
 
 
 func grow(dir: Vector3i = Vector3i.ZERO) -> void:
@@ -168,7 +168,7 @@ func crash() -> void:
 	_segs.pop_front()
 	_crashed = true
 	crashed.emit()
-	BuggyG.say(self, "snake/status", "CRASHED")
+	BuggyG.say(self, "snake", "CRASHED")
 
 
 func can_move_to(c: Vector3i) -> bool:
@@ -184,6 +184,7 @@ func _seg_cpos(idx: int) -> Vector3i:
 
 
 func _seg_set_cpos(idx: int, c: Vector3i) -> void:
+	_segs[idx].cdir = c - _segs[idx].cpos
 	_segs[idx].cpos = c
 	_segs[idx].queue_redraw()
 

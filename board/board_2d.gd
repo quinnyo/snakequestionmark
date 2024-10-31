@@ -51,10 +51,14 @@ func is_out_of_bounds(c: Vector3i) -> bool:
 	return !_bounds.has_point(Vector2i(c.x, c.y))
 
 
-func pose_global(c: Vector3i) -> Transform2D:
+func pose_global(c: Vector3i, d: Vector3i = Vector3i(1, 0, 0)) -> Transform2D:
 	if !_assert_config():
 		return Transform2D()
-	return global_transform.translated_local(phield.layout_centre(c, layout))
+	d = d if d.x != 0 || d.y != 0 else Vector3i(1, 0, 0)
+	var p0 := phield.layout_centre(c, layout)
+	var p1 := phield.layout_centre(c + d, layout)
+	var angle := (p1 - p0).angle()
+	return global_transform * Transform2D(angle, p0)
 
 
 func cell_centre(c: Vector3i) -> Vector2:

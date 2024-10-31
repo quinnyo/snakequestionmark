@@ -72,11 +72,22 @@ func _find_atail() -> SnakeSegment:
 	return null
 
 
-func _draw() -> void:
-	if atail && type != SegmentType.FACE:
-		draw_line(Vector2.ZERO, atail.position - position, Color.DARK_OLIVE_GREEN, 3.0, true)
-		draw_line(Vector2.ZERO, atail.position - position, Color.YELLOW_GREEN, 2.0, true)
+func _draw_eye(offset: Vector2, eye_radius: float, base_colour: Color = Color.BLACK, line_width: float = 1.0, line_colour: Color = Color(0.2, 0.0, 0.0)) -> void:
+	var xf := Transform2D(-signf(offset.y) * PI * 0.12, Vector2(offset.x, 0.0)).scaled_local(Vector2(1.0, 0.6))
+	draw_set_transform_matrix(xf)
+	draw_circle(Vector2(0.0, offset.y), eye_radius + 0.5, base_colour, true, -1.0, true)
+	draw_circle(Vector2(0.0, offset.y), eye_radius * 0.75, line_colour, false, line_width, true)
+	draw_set_transform(Vector2.ZERO)
 
+
+func _draw() -> void:
+	# links
+	if atail && type != SegmentType.FACE:
+		var from := Vector2.ZERO
+		var to := to_local(atail.global_position)
+		draw_line(from, to, Color.DARK_OLIVE_GREEN, 3.0, true)
+		draw_line(from, to, Color.YELLOW_GREEN, 2.0, true)
+	# segments
 	match type:
 		SegmentType.FACE:
 			var ok := _board.is_open(cpos)
@@ -88,25 +99,12 @@ func _draw() -> void:
 			var eye_radius := 5.0
 			draw_circle(Vector2.ZERO, radius + 1, Color.DARK_OLIVE_GREEN, true, -1.0, true)
 			draw_circle(Vector2.ZERO, radius - 1, Color.OLIVE, true, -1.0, true)
-
-			# TODO: transform 'heading' via phield/layout
-			var cdir := heading()
-			var udir := Vector2(cdir.x, cdir.y).normalized()
-			var angle := Vector2.DOWN.angle_to(udir)
-			var d := udir * radius * 0.8
-			var xf := Transform2D(angle, d).scaled_local(Vector2(0.8, 1.0))
-			var right := Vector2(radius * 0.8, 0.0)
-			var left := Vector2(-radius * 0.8, 0.0)
-			draw_set_transform_matrix(xf)
-			draw_circle(right, eye_radius + 0.5, Color.BLACK)
-			draw_circle(left, eye_radius + 0.5, Color.BLACK)
-			draw_set_transform_matrix(xf.translated(Vector2(-0.2, -0.5) * eye_radius).scaled_local(Vector2(1.0, 0.9)))
-			draw_circle(right, eye_radius / 2.0, Color.WHITE, true, -1.0, true)
-			draw_circle(left, eye_radius / 2.0, Color.WHITE, true, -1.0, true)
-			draw_set_transform_matrix(xf.scaled_local(Vector2(1.0, 0.9)))
-			draw_circle(right, eye_radius, Color.BLACK, false, 1.0, true)
-			draw_circle(left, eye_radius, Color.BLACK, false, 1.0, true)
-			draw_set_transform_matrix(Transform2D(angle, d * 0.1).scaled_local(Vector2(1.1, 1.0)))
+			# eyes
+			var eye_right := Vector2(radius * 0.4, radius * 1.50)
+			_draw_eye(eye_right, eye_radius, Color.BLACK)
+			_draw_eye(eye_right * Vector2(1.0, -1.0), eye_radius, Color.BLACK)
+			# hat
+			draw_set_transform_matrix(Transform2D(0.0, Vector2(1.0, 1.3), 0.0, Vector2(-eye_radius * 0.1, 0.0)))
 			draw_circle(Vector2.ZERO, radius - eye_radius / 2.0, Color.OLIVE, true, -1.0, true)
 		SegmentType.BODY:
 			var radius := 7.0
