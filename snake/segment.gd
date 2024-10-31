@@ -9,6 +9,10 @@ enum SegmentType { FACE, HEAD, BODY, TAIL }
 		type = value
 		queue_redraw()
 
+var stone: bool = false:
+	set(value):
+		stone = value
+		modulate = Color(0.4, 0.3, 0.5) if stone else Color.WHITE
 
 var ahead: SnakeSegment:
 	get:

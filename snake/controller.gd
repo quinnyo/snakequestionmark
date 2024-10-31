@@ -118,7 +118,9 @@ func check_motion_delta(d: Vector3i) -> bool:
 
 func act() -> void:
 	if _crashed:
-		pass
+		if length():
+			var seg := _segs.pop_front() as SnakeSegment
+			seg.stone = true
 	else:
 		motion()
 
@@ -148,6 +150,8 @@ func motion_move() -> void:
 
 
 func crash() -> void:
+	_segs[0].queue_free()
+	_segs.pop_front()
 	_crashed = true
 	crashed.emit()
 	BuggyG.say(self, "snake/status", "CRASHED")
