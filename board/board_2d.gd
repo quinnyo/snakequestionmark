@@ -61,6 +61,16 @@ func pose_global(c: Vector3i, d: Vector3i = Vector3i(1, 0, 0)) -> Transform2D:
 	return global_transform * Transform2D(angle, p0)
 
 
+func get_layout_bounds() -> Rect2:
+	if !_assert_config():
+		return Rect2()
+	var c0 := Vector3i(origin.x, origin.y, 0) - Vector3i.ONE
+	var c1 := c0 + Vector3i(size.x, size.y, 0) + Vector3i.ONE
+	var p0 := phield.layout_centre(c0, layout)
+	var p1 := phield.layout_centre(c1, layout)
+	return Rect2(p0, p1 - p0)
+
+
 func cell_centre(c: Vector3i) -> Vector2:
 	if !_assert_config():
 		return Vector2()
