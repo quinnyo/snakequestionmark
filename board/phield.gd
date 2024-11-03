@@ -20,6 +20,10 @@ func layout_centre(c: Vector3i, layout: PhieldLayout) -> Vector2:
 	return layout.xform(Vector2(c.x, c.y))
 
 
+func layout_fc(fc: Vector3, layout: PhieldLayout) -> Vector2:
+	return layout.xform(Vector2(fc.x, fc.y))
+
+
 func unlayout(p: Vector2, layout: PhieldLayout) -> Vector2:
 	return layout.xform_inv(p)
 
