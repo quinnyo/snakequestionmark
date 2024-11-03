@@ -1,4 +1,4 @@
-extends Camera2D
+class_name BoardCamera2D extends Camera2D
 
 
 @export_custom(PROPERTY_HINT_LINK, "") var frame_margin: Vector2 = Vector2(4, 4)
