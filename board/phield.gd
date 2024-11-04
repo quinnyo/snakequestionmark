@@ -11,6 +11,11 @@ func neighbour(c: Vector3i, dir: int) -> Vector3i:
 	return c + direction(dir)
 
 
+func get_neighbours(c: Vector3i) -> Array[Vector3i]:
+	push_error("not implemented", c)
+	return []
+
+
 func layout_vertices(c: Vector3i, layout: PhieldLayout) -> PackedVector2Array:
 	push_error("not implemented", c, layout)
 	return PackedVector2Array()

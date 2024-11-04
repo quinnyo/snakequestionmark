@@ -1,0 +1,74 @@
+[gd_scene load_steps=9 format=3 uid="uid://bu1bt803j0pb3"]
+
+[ext_resource type="Script" path="res://board/test/test_islands.gd" id="1_jh03h"]
+[ext_resource type="Script" path="res://board/board_2d.gd" id="1_y7ah3"]
+[ext_resource type="Script" path="res://board/phield_square.gd" id="2_q5sfk"]
+[ext_resource type="Script" path="res://board/layout.gd" id="3_0deqx"]
+[ext_resource type="Script" path="res://board/cellular.gd" id="4_mdgjm"]
+[ext_resource type="Script" path="res://board/extra/board_camera.gd" id="5_hmaam"]
+
+[sub_resource type="Resource" id="Resource_htw7d"]
+script = ExtResource("2_q5sfk")
+double_coords = false
+
+[sub_resource type="Resource" id="Resource_opclo"]
+script = ExtResource("3_0deqx")
+origin = Vector2(16, 16)
+size = Vector2(32, 32)
+border_width = Vector2(8, 8)
+start_angle = 0.0
+xf = Transform2D(1, 0, 0, 1, 0, 0)
+
+[node name="Node2D" type="Node2D"]
+
+[node name="Board2D" type="Node2D" parent="."]
+script = ExtResource("1_y7ah3")
+phield = SubResource("Resource_htw7d")
+layout = SubResource("Resource_opclo")
+
+[node name="Cellular" type="Node2D" parent="Board2D"]
+script = ExtResource("4_mdgjm")
+cpos = Vector3i(0, 4, 0)
+
+[node name="Line2D" type="Line2D" parent="Board2D/Cellular"]
+points = PackedVector2Array(4, -24, 8, -20, 0, 0, -8, -20, -4, -24)
+closed = true
+width = 2.0
+default_color = Color(1, 0.34267, 0.232746, 1)
+
+[node name="Cellular2" type="Node2D" parent="Board2D"]
+script = ExtResource("4_mdgjm")
+cpos = Vector3i(2, 4, 0)
+
+[node name="Line2D" type="Line2D" parent="Board2D/Cellular2"]
+points = PackedVector2Array(4, -24, 8, -20, 0, 0, -8, -20, -4, -24)
+closed = true
+width = 2.0
+default_color = Color(0.887779, 0.474097, 3.85046e-07, 1)
+
+[node name="Cellular3" type="Node2D" parent="Board2D"]
+script = ExtResource("4_mdgjm")
+cpos = Vector3i(1, 4, 0)
+
+[node name="Line2D" type="Line2D" parent="Board2D/Cellular3"]
+points = PackedVector2Array(4, -24, 8, -20, 0, 0, -8, -20, -4, -24)
+closed = true
+width = 2.0
+default_color = Color(0.516445, 0.661898, 1.92523e-07, 1)
+
+[node name="Cellular4" type="Node2D" parent="Board2D"]
+script = ExtResource("4_mdgjm")
+cpos = Vector3i(1, 5, 0)
+
+[node name="Line2D" type="Line2D" parent="Board2D/Cellular4"]
+points = PackedVector2Array(4, -24, 8, -20, 0, 0, -8, -20, -4, -24)
+closed = true
+width = 2.0
+default_color = Color(0, 0.70984, 0.455575, 1)
+
+[node name="BoardCamera2D" type="Camera2D" parent="Board2D"]
+script = ExtResource("5_hmaam")
+
+[node name="test_islands" type="Node2D" parent="Board2D"]
+z_index = 1
+script = ExtResource("1_jh03h")

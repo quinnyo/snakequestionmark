@@ -6,6 +6,14 @@ func direction(dir: int) -> Vector3i:
 	return Hex.DIRECTIONS[dir % Hex.DIRECTIONS.size()]
 
 
+func get_neighbours(c: Vector3i) -> Array[Vector3i]:
+	var neighbours: Array[Vector3i] = Hex.DIRECTIONS.duplicate()
+	for i in range(neighbours.size()):
+		var d := neighbours[i]
+		neighbours[i] = Vector3i(c.x + d.x, c.y + d.y, 0)
+	return neighbours
+
+
 func layout_vertices(c: Vector3i, layout: PhieldLayout) -> PackedVector2Array:
 	if !is_face(c):
 		return PackedVector2Array()
@@ -19,22 +27,22 @@ func layout_vertices(c: Vector3i, layout: PhieldLayout) -> PackedVector2Array:
 
 
 func layout_centre(c: Vector3i, layout: PhieldLayout) -> Vector2:
-	return layout.xform(Vector2(c.x, c.y) / 2.0)
+	return layout.xform(Vector2(c.x, c.y))
 
 
 func unlayout(p: Vector2, layout: PhieldLayout) -> Vector2:
-	return layout.xform_inv(p) * 2.0
+	return layout.xform_inv(p)
 
 
-func is_face(c: Vector3i) -> bool:
-	return (c.x | c.y) & 1 == 0
+func is_face(_c: Vector3i) -> bool:
+	return true
 
 
-func is_border(c: Vector3i) -> bool:
-	return !is_face(c)
+func is_border(_c: Vector3i) -> bool:
+	return false
 
 
-func is_corner(c: Vector3i) -> bool:
+func is_corner(_c: Vector3i) -> bool:
 	return false
 
 

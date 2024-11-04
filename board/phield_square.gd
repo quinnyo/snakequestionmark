@@ -41,6 +41,13 @@ func direction(dir: int) -> Vector3i:
 	return DIRECTIONS[dir % DIRECTIONS.size()]
 
 
+func get_neighbours(c: Vector3i) -> Array[Vector3i]:
+	var neighbours: Array[Vector3i] = DIRECTIONS.duplicate()
+	for i in range(neighbours.size()):
+		neighbours[i] += c
+	return neighbours
+
+
 func layout_vertices(c: Vector3i, layout: PhieldLayout) -> PackedVector2Array:
 	var vertices := PackedVector2Array()
 	vertices.resize(4)

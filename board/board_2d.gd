@@ -77,10 +77,21 @@ func cell_centre(c: Vector3i) -> Vector2:
 	return phield.layout_centre(c, layout)
 
 
+func layout_fc(fc: Vector3) -> Vector2:
+	if !_assert_config():
+		return Vector2()
+	return phield.layout_fc(fc, layout)
+
+
+func pick_cell(p: Vector2) -> Vector3i:
+	var fc := phield.unlayout(p, layout)
+	return Vector3i(roundi(fc.x), roundi(fc.y), 0)
+
+
 func is_open(c: Vector3i) -> bool:
 	if is_out_of_bounds(c):
 		return false
-	return true
+	return occupant(c) == null
 
 
 ## Returns the first occupant found at `c`
@@ -102,6 +113,14 @@ func deregister(node: Cellular) -> void:
 	if idx != -1:
 		_entities[idx] = _entities[-1]
 		_entities.pop_back()
+
+
+func get_neighbours(c: Vector3i) -> Array[Vector3i]:
+	return phield.get_neighbours(c)
+
+
+func get_entities(ghosts: bool, out_of_bounds: bool) -> Array[Cellular]:
+	return _entities.filter(func(ent: Cellular): return (ghosts || !ent.ghost) && (out_of_bounds || !is_out_of_bounds(ent.cpos)))
 
 
 static func find_parent_board(node: Node) -> Board2D:
