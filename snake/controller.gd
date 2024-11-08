@@ -167,7 +167,7 @@ func motion() -> void:
 
 ## Snake forward.
 func motion_move() -> void:
-	if !can_move_to(_seg_cpos(0)):
+	if !_board.is_open(_seg_cpos(0)):
 		# ????: Try alternatives?
 		crash()
 		return
@@ -183,14 +183,6 @@ func crash() -> void:
 	_segs.pop_front()
 	status = Status.CRASHED
 	crashed.emit()
-
-
-func can_move_to(c: Vector3i) -> bool:
-	if !_board.is_open(c):
-		return false
-	if _board.occupant(c):
-		return false
-	return true
 
 
 func _seg_cpos(idx: int) -> Vector3i:
