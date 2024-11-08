@@ -1,6 +1,9 @@
 @tool
 class_name Board2D extends Node2D
 
+## Board configuration changed
+signal changed()
+
 @export var phield: Phield:
 	set(value):
 		if phield && phield.changed.is_connected(_refresh):
@@ -30,11 +33,13 @@ class_name Board2D extends Node2D
 
 var _bounds: Rect2i
 var _entities: Array[Cellular]
+var _config_id: int
 
 
 func _refresh() -> void:
 	_bounds = Rect2i(origin, size)
-	queue_redraw()
+	_config_id = randi()
+	changed.emit()
 
 
 func _assert_config() -> bool:
@@ -45,6 +50,15 @@ func _assert_config() -> bool:
 		push_error("Board2D layout is null")
 		return false
 	return true
+
+
+## Return value changes every time board configuration changes.
+func get_config_id() -> int:
+	return _config_id
+
+
+func get_bounds() -> Rect2i:
+	return _bounds
 
 
 func is_out_of_bounds(c: Vector3i) -> bool:
@@ -132,65 +146,3 @@ static func find_parent_board(node: Node) -> Board2D:
 
 func _ready() -> void:
 	_refresh()
-
-
-func _draw() -> void:
-	if not phield or not layout:
-		return
-
-	var cmin := _bounds.position
-	var cmax := _bounds.end
-	for y in range(cmin.y, cmax.y):
-		for x in range(cmin.x, cmax.x):
-			var c := Vector3i(x, y, 0)
-			var color := Color.AQUA
-			if phield.is_face(c):
-				color = Color.STEEL_BLUE
-			else:
-				print("not face: %s" % [ c ])
-			var points := phield.layout_vertices(c, layout)
-			if points.size() < 3:
-				continue
-			draw_colored_polygon(points, color)
-
-	_debug_draw()
-
-
-func _debug_draw() -> void:
-	var cmin := _bounds.position
-	var cmax := _bounds.end
-	for y in range(cmin.y, cmax.y):
-		for x in range(cmin.x, cmax.x):
-			var c := Vector3i(x, y, 0)
-			_debug_draw_element(c)
-
-
-func _debug_draw_element(c: Vector3i) -> void:
-	var p := phield.layout_centre(c, layout)
-
-	var points := phield.layout_vertices(c, layout)
-	if points.size() >= 3:
-		points.append(points[0])
-		draw_polyline(points, Color(0.85, 0.95, 0.75, 0.5))
-	else:
-		draw_line(p, p + Vector2(10, 0), Color.RED)
-		draw_line(p, p + Vector2(0, 10), Color.RED)
-
-	var color := Color.RED
-	var radius := 2.0
-	var fill := false
-	var width := 1.0
-	if phield.is_face(c):
-		color = Color.CORNSILK
-		radius = 8.0
-	elif phield.is_border(c):
-		color = Color.CORAL
-		radius = 4.0
-	elif phield.is_corner(c):
-		color = Color.AQUA
-		radius = 3.0
-	else:
-		color = Color.MAGENTA
-
-	draw_circle(p, radius + 0.5, Color.BLACK, false, width + 2.5, true)
-	draw_circle(p, radius, color, fill, width, true)
