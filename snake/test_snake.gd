@@ -11,7 +11,7 @@ func tick(_t: int, bar: int, beat: int) -> void:
 	if beat == 0:
 		if shift.has_work():
 			shift.perform()
-			if !shift.has_work() && snake._crashed:
+			if !shift.has_work():
 				snake.start_auto()
 			return
 		_action()
@@ -20,7 +20,7 @@ func tick(_t: int, bar: int, beat: int) -> void:
 
 func _action() -> void:
 	snake.act()
-	if snake._crashed && snake.length() == 0:
+	if snake.status == SnakeController.Status.DEAD:
 		shift.board = board
 		shift.prepare()
 

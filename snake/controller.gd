@@ -2,6 +2,14 @@ class_name SnakeController extends Cellular
 
 signal crashed()
 
+enum Status {
+	NIL,
+	ALIVE,
+	CRASHED,
+	DEAD,
+	OBSTRUCTED,
+}
+
 enum Flag {
 	STEER_DIAGONAL,
 	STEER_180,
@@ -25,7 +33,11 @@ enum Flag {
 @export var step_size: int = 1
 
 var action_points: int = 0
-var _crashed: bool = false
+var status: Status = Status.NIL:
+	set(value):
+		status = value
+		BuggyG.say(self, "snake", Status.keys()[status])
+
 var _segs: Array[SnakeSegment] = []
 
 var _generation: int
@@ -44,7 +56,7 @@ func flag_clear(f: Flag) -> void:
 
 
 func clear():
-	_crashed = false
+	status = Status.NIL
 	for child in _segs:
 		child.queue_free()
 	_segs.clear()
@@ -59,7 +71,6 @@ func append_segment(s: SnakeSegment) -> void:
 	s.name = "seg_%d-%d" % [ _generation, _segs.size() ]
 	add_child(s)
 	_segs.append(s)
-	BuggyG.say(self, "snake", "%d" % [ length() - 1 ])
 
 
 func grow(dir: Vector3i = Vector3i.ZERO) -> void:
@@ -75,9 +86,12 @@ func grow(dir: Vector3i = Vector3i.ZERO) -> void:
 	append_segment(s)
 
 
-func start(c: Vector3i, dir: Vector3i, add_length: int = 0):
+func start(c: Vector3i, dir: Vector3i, add_length: int = 0) -> void:
 	clear()
 	dir = dir.sign() * step_size
+	if !_board.is_open(c + dir):
+		status = Status.OBSTRUCTED
+		return
 	var segface := SnakeSegment.new()
 	segface.cpos = c + dir
 	segface.type = SnakeSegment.SegmentType.FACE
@@ -85,6 +99,7 @@ func start(c: Vector3i, dir: Vector3i, add_length: int = 0):
 	grow(dir)
 	for i in range(add_length):
 		grow()
+	status = Status.ALIVE
 
 
 func start_auto() -> void:
@@ -94,7 +109,7 @@ func start_auto() -> void:
 
 
 func try_set_heading(d: Vector3i) -> bool:
-	if _crashed:
+	if status != Status.ALIVE:
 		return false
 	d = d.sign() * step_size
 	if !check_motion_delta(d):
@@ -128,12 +143,14 @@ func check_motion_delta(d: Vector3i) -> bool:
 
 
 func act() -> void:
-	if _crashed:
+	if status == Status.CRASHED:
 		if length():
 			var seg := _segs.pop_front() as SnakeSegment
 			seg.stone = true
 			seg.reparent(get_parent())
-	else:
+		else:
+			status = Status.DEAD
+	elif status == Status.ALIVE:
 		motion()
 
 
@@ -164,9 +181,8 @@ func motion_move() -> void:
 func crash() -> void:
 	_segs[0].queue_free()
 	_segs.pop_front()
-	_crashed = true
+	status = Status.CRASHED
 	crashed.emit()
-	BuggyG.say(self, "snake", "CRASHED")
 
 
 func can_move_to(c: Vector3i) -> bool:
