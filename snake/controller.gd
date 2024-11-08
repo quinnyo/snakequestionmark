@@ -185,12 +185,24 @@ func crash() -> void:
 	crashed.emit()
 
 
+func pose_segments(pose: Array[Vector3i], origin: int) -> void:
+	if status != Status.ALIVE || pose.size() != length() - 1:
+		return
+	var poseidx := 0
+	var cpos_origin := _seg_cpos(origin + 1)
+	for segidx in range(1, length()):
+		_seg_set_cpos(segidx, cpos_origin + pose[poseidx])
+		poseidx += 1
+
+
 func _seg_cpos(idx: int) -> Vector3i:
 	return _segs[idx].cpos
 
 
 func _seg_set_cpos(idx: int, c: Vector3i) -> void:
-	_segs[idx].cdir = c - _segs[idx].cpos
+	var d := c - _segs[idx].cpos
+	if d != Vector3i.ZERO:
+		_segs[idx].cdir = d.sign()
 	_segs[idx].cpos = c
 	_segs[idx].queue_redraw()
 
@@ -205,7 +217,3 @@ func _get_next_length() -> int:
 
 func _init() -> void:
 	ghost = true
-
-
-func _ready() -> void:
-	start_auto()
