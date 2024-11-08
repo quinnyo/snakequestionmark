@@ -133,8 +133,6 @@ func act() -> void:
 			var seg := _segs.pop_front() as SnakeSegment
 			seg.stone = true
 			seg.reparent(get_parent())
-		else:
-			start_auto()
 	else:
 		motion()
 

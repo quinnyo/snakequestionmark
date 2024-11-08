@@ -1,23 +1,33 @@
 extends Node2D
 
+var shift := preload("res://board/extra/cell_shift.gd").new()
 
 @onready var metronome: Metronome = $Metronome as Metronome
 @onready var snake: SnakeController = $Board2D/SnakeController as SnakeController
-
+@onready var board: Board2D = $Board2D as Board2D
 
 func tick(_t: int, bar: int, beat: int) -> void:
 	BuggyG.say(self, "turn", "%d:%d" % [ bar, beat ])
 	if beat == 0:
+		if shift.has_work():
+			shift.perform()
+			if !shift.has_work() && snake._crashed:
+				snake.start_auto()
+			return
 		_action()
 		_post_action()
 
 
 func _action() -> void:
 	snake.act()
+	if snake._crashed && snake.length() == 0:
+		shift.board = board
+		shift.prepare()
 
 
 func _post_action() -> void:
 	snake.action_points = 1
+
 
 
 func _process(_delta: float) -> void:
