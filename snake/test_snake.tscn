@@ -43,7 +43,6 @@ layout = SubResource("Resource_xdqk3")
 
 [node name="SnakeController" type="Node2D" parent="Board2D"]
 script = ExtResource("3_ju3ps")
-flags = 60
 ghost = true
 
 [node name="Camera2D" type="Camera2D" parent="Board2D"]
