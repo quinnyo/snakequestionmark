@@ -1,7 +1,5 @@
 extends RefCounted
 
-const Islands := preload("res://board/extra/islands.gd")
-
 var board: Board2D
 var shift_direction: Vector3i = Vector3i(0, 1, 0)
 var island_entities := []

@@ -1,4 +1,4 @@
-extends RefCounted
+class_name Islands extends RefCounted
 
 
 # Entities are stored in a dictionary, keyed by coordinates -- `Map<Vector3i, Cellular>`.
@@ -104,3 +104,21 @@ static func go(board: Board2D) -> Array[Island]:
 			break
 
 	return islands
+
+
+static func get_coast(land: Array[Vector3i], dir: Vector3i) -> Array[Vector3i]:
+	var asdf := {}
+	for c in land:
+		asdf[c] = 1
+	return land.filter(func(c): return !asdf.has(c + dir))
+	#var coast := {}
+	#for c in land:
+		#var fore := c + dir
+		#if coast.has(fore):
+			#continue
+		#var hind := c - dir
+		#if coast.has(hind):
+			#coast.erase(hind)
+		#coast[c] = 1
+#
+	#return []
