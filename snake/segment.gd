@@ -34,6 +34,8 @@ func heading() -> Vector3i:
 
 
 func _find_ahead() -> SnakeSegment:
+	if type == SegmentType.HEAD:
+		return null
 	var index := get_index() - 1
 	while index >= 0:
 		var sibling := get_parent().get_child(index)
@@ -44,6 +46,8 @@ func _find_ahead() -> SnakeSegment:
 
 
 func _find_atail() -> SnakeSegment:
+	if type == SegmentType.TAIL:
+		return null
 	var index := get_index() + 1
 	while index < get_parent().get_child_count():
 		var sibling := get_parent().get_child(index)
