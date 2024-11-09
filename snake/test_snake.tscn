@@ -47,6 +47,7 @@ script = ExtResource("8_b5hd0")
 
 [node name="SnakeController" type="Node2D" parent="Board2D"]
 script = ExtResource("3_ju3ps")
+flags = 44
 ghost = true
 
 [node name="Camera2D" type="Camera2D" parent="Board2D"]

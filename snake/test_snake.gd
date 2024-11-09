@@ -50,9 +50,7 @@ func _process(_delta: float) -> void:
 	if Input.is_action_just_pressed("ui_up"):
 		dir.y -= 1
 	if dir != Vector3i.ZERO:
-		if snake.try_set_heading(dir):
-			if snake.flag(SnakeController.Flag.MOTION_IMMEDIATE):
-				metronome.finish_tick()
+		snake.try_set_heading(dir)
 
 
 func _input(event: InputEvent) -> void:

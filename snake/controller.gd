@@ -95,7 +95,6 @@ func start(c: Vector3i, dir: Vector3i, add_length: int = 0) -> void:
 	head.cdir = dir
 	head.type = SnakeSegment.SegmentType.HEAD
 	append_segment(head)
-	#grow(dir)
 	for i in range(add_length):
 		grow()
 	status = Status.ALIVE
@@ -124,6 +123,9 @@ func try_set_heading(d: Vector3i) -> bool:
 	if !flag(Flag.STEER_AT_WALL) && !_board.is_open(newpos):
 		return false
 	_segs[0].cdir = d.sign()
+	if flag(SnakeController.Flag.MOTION_IMMEDIATE):
+		action_points = 1
+		motion()
 	return true
 
 
@@ -149,7 +151,7 @@ func act() -> void:
 			seg.reparent(get_parent())
 		else:
 			status = Status.DEAD
-	elif status == Status.ALIVE:
+	elif status == Status.ALIVE && flag(Flag.MOTION_AUTO):
 		motion()
 
 
@@ -174,8 +176,6 @@ func motion_move() -> void:
 	for seg in range(length() - 1, 0, -1):
 		_seg_set_cpos(seg, _seg_cpos(seg - 1))
 	_seg_set_cpos(0, _seg_cpos(0) + head_forward)
-	if flag(Flag.MOTION_AUTO):
-		try_set_heading(head_forward)
 
 
 func crash() -> void:
