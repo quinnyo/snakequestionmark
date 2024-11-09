@@ -19,17 +19,21 @@ enum Flag {
 	MOTION_AUTO,
 	MOTION_IMMEDIATE,
 
+	GRAVITY_ENABLE,
+
 	_COUNT,
 	STEERF_DEFAULT = (1 << STEER_AT_WALL) | (1 << STEER_AT_SELF),
 	MOTIONF_DEFAULT = (1 << MOTION_AUTO),
-	DEFAULT = STEERF_DEFAULT | MOTIONF_DEFAULT
+	DEFAULT = STEERF_DEFAULT | MOTIONF_DEFAULT | (1 << GRAVITY_ENABLE)
 }
 
 @export_flags(
 	"Steer Diagonal", "Steer 180", "Steer At Wall", "Steer At Self",
-	"Motion Auto", "Motion Immediate"
+	"Motion Auto", "Motion Immediate",
+	"Gravity Enable",
 ) var flags: int = Flag.DEFAULT
 
+@export var gravity := Vector3i(0, 1, 0)
 @export var step_size: int = 1
 
 var action_points: int = 0
@@ -151,8 +155,11 @@ func act() -> void:
 			seg.reparent(get_parent())
 		else:
 			status = Status.DEAD
-	elif status == Status.ALIVE && flag(Flag.MOTION_AUTO):
-		motion()
+	elif status == Status.ALIVE:
+		if flag(Flag.MOTION_AUTO):
+			motion()
+		if flag(Flag.GRAVITY_ENABLE) && gravity != Vector3i.ZERO:
+			rigid_move(gravity)
 
 
 ## Move on current heading, if possible.
@@ -189,6 +196,28 @@ func pose_segments(pose: Array[Vector3i], origin: int) -> void:
 	var cpos_origin := _seg_cpos(origin)
 	for segidx in range(length()):
 		_seg_set_cpos(segidx, cpos_origin + pose[segidx])
+
+
+func rigid_move(d: Vector3i, crash_enable: bool = true) -> void:
+	var coast := Islands.get_coast(get_cells(), d.sign())
+	var can_move := true
+	for c in coast:
+		if !_board.is_open(c + d):
+			can_move = false
+			break
+	if can_move:
+		for seg in _segs:
+			seg.cpos += d
+	elif crash_enable:
+		crash()
+
+
+func get_cells() -> Array[Vector3i]:
+	var cells: Array[Vector3i] = []
+	cells.resize(length())
+	for i in range(length()):
+		cells[i] = _seg_cpos(i)
+	return cells
 
 
 func _seg_cpos(idx: int) -> Vector3i:
