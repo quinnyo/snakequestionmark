@@ -1,0 +1,45 @@
+[gd_scene load_steps=11 format=3 uid="uid://b6drbrdjkulrv"]
+
+[ext_resource type="Script" path="res://turn_game/snake_game/xtg_game.gd" id="1_q1gwm"]
+[ext_resource type="Script" path="res://board/board_2d.gd" id="2_aj5nv"]
+[ext_resource type="Resource" uid="uid://cxrodc0x3td1p" path="res://turn_game/snake_game/sequence.tres" id="2_xgyw5"]
+[ext_resource type="Script" path="res://turn_game/metronome.gd" id="3_25s4q"]
+[ext_resource type="Script" path="res://board/phield_square.gd" id="3_giaab"]
+[ext_resource type="Script" path="res://board/layout.gd" id="4_wb7de"]
+[ext_resource type="Script" path="res://board/extra/board_camera.gd" id="5_mhheo"]
+[ext_resource type="Script" path="res://board/extra/debug_draw.gd" id="6_4kci2"]
+
+[sub_resource type="Resource" id="Resource_nttt3"]
+script = ExtResource("3_giaab")
+double_coords = false
+
+[sub_resource type="Resource" id="Resource_twbt4"]
+script = ExtResource("4_wb7de")
+origin = Vector2(16, 16)
+size = Vector2(32, 32)
+border_width = Vector2(8, 8)
+start_angle = 0.0
+xf = Transform2D(1, 0, 0, 1, 0, 0)
+
+[node name="XtgGame" type="Node"]
+script = ExtResource("1_q1gwm")
+sequence = ExtResource("2_xgyw5")
+
+[node name="Metronome" type="Node" parent="."]
+script = ExtResource("3_25s4q")
+autostart = false
+period = 0.4
+
+[node name="Board2D" type="Node2D" parent="."]
+script = ExtResource("2_aj5nv")
+phield = SubResource("Resource_nttt3")
+layout = SubResource("Resource_twbt4")
+size = Vector2i(16, 10)
+
+[node name="BoardDebugDraw2D" type="Node2D" parent="Board2D"]
+script = ExtResource("6_4kci2")
+
+[node name="BoardCamera2D" type="Camera2D" parent="Board2D"]
+script = ExtResource("5_mhheo")
+
+[connection signal="tick" from="Metronome" to="." method="_on_metronome_tick"]

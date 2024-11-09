@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="TgPhaseSequence" load_steps=12 format=3 uid="uid://cxrodc0x3td1p"]
+
+[ext_resource type="Script" path="res://turn_game/phase_sequence.gd" id="1_66758"]
+[ext_resource type="Script" path="res://turn_game/phase.gd" id="2_w6nd0"]
+[ext_resource type="Script" path="res://turn_game/snake_game/round_start.gd" id="3_pffvl"]
+[ext_resource type="Script" path="res://turn_game/snake_game/player_turn.gd" id="4_i0esy"]
+[ext_resource type="Script" path="res://turn_game/snake_game/clear_lines.gd" id="5_62jk3"]
+[ext_resource type="Script" path="res://turn_game/snake_game/compact.gd" id="6_8appx"]
+
+[sub_resource type="Resource" id="Resource_u18df"]
+script = ExtResource("3_pffvl")
+name = "RoundStart"
+
+[sub_resource type="Resource" id="Resource_1mvwc"]
+script = ExtResource("4_i0esy")
+name = "PlayerTurn"
+
+[sub_resource type="Resource" id="Resource_pps55"]
+script = ExtResource("5_62jk3")
+name = "ClearLines"
+
+[sub_resource type="Resource" id="Resource_q231e"]
+script = ExtResource("6_8appx")
+name = "Compact"
+
+[sub_resource type="Resource" id="Resource_gfrt2"]
+script = ExtResource("1_66758")
+sequence = Array[ExtResource("2_w6nd0")]([SubResource("Resource_pps55"), SubResource("Resource_q231e")])
+name = "ComputerTurn"
+
+[resource]
+script = ExtResource("1_66758")
+sequence = Array[ExtResource("2_w6nd0")]([SubResource("Resource_u18df"), SubResource("Resource_1mvwc"), SubResource("Resource_gfrt2")])
+name = "Round"
