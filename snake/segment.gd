@@ -1,13 +1,12 @@
 class_name SnakeSegment extends Cellular
 
 
-enum SegmentType { FACE, HEAD, BODY, TAIL }
+enum SegmentType { HEAD, BODY, TAIL }
 
 
 @export var type: SegmentType = SegmentType.TAIL:
 	set(value):
 		type = value
-		ghost = type == SegmentType.FACE
 		queue_redraw()
 
 var stone: bool = false:
@@ -30,26 +29,8 @@ var atail: SnakeSegment:
 func heading() -> Vector3i:
 	if ahead:
 		return ahead.cpos - cpos
-	elif atail:
-		return cpos - atail.cpos
 	else:
-		return Vector3i.ZERO
-
-
-func is_face() -> bool:
-	return not ahead
-
-
-func is_head() -> bool:
-	return ahead && ahead.is_face()
-
-
-func is_body() -> bool:
-	return ahead && atail && !ahead.is_face()
-
-
-func is_tail() -> bool:
-	return not atail
+		return cdir
 
 
 func _find_ahead() -> SnakeSegment:
@@ -82,18 +63,14 @@ func _draw_eye(offset: Vector2, eye_radius: float, base_colour: Color = Color.BL
 
 func _draw() -> void:
 	# links
-	if atail && type != SegmentType.FACE:
+	if ahead:
 		var from := Vector2.ZERO
-		var to := to_local(atail.global_position)
+		var to := 0.75 * to_local(ahead.global_position)
 		draw_line(from, to, Color.DARK_OLIVE_GREEN, 3.0, true)
-		draw_line(from, to, Color.YELLOW_GREEN, 2.0, true)
+		draw_line(from, to, Color.OLIVE, 2.0, true)
+		draw_circle(to, 2.0, Color.OLIVE, true, -1.0, true)
 	# segments
 	match type:
-		SegmentType.FACE:
-			var ok := _board.is_open(cpos)
-			var rect := Rect2(Vector2(-8,-8), Vector2(16, 16))
-			draw_rect(rect, Color.BLACK, false, 2.0)
-			draw_rect(rect.grow(-1), Color.WHITE if ok else Color.RED, false, 1.0)
 		SegmentType.HEAD:
 			var radius := 9.0
 			var eye_radius := 5.0

@@ -19,7 +19,7 @@ func tick(_t: int, bar: int, beat: int) -> void:
 
 
 func start_next_snake() -> void:
-	var p := board.get_bounds().end - Vector2i(0, 1)
+	var p := board.get_bounds().end - Vector2i(1, 1)
 	var d := Vector3i(-1, 0, 0)
 	snake.start(Vector3i(p.x, p.y, 0), d, 3)
 

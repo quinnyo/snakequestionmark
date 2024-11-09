@@ -79,31 +79,30 @@ func grow(dir: Vector3i = Vector3i.ZERO) -> void:
 		return
 	var s := SnakeSegment.new()
 	s.cpos = _seg_cpos(-1) - dir
-	if length() == 1:
-		s.type = SnakeSegment.SegmentType.HEAD
-	elif length() > 2:
+	if _segs[-1].type == SnakeSegment.SegmentType.TAIL:
 		_segs[-1].type = SnakeSegment.SegmentType.BODY
 	append_segment(s)
 
 
 func start(c: Vector3i, dir: Vector3i, add_length: int = 0) -> void:
 	clear()
-	dir = dir.sign() * step_size
-	if !_board.is_open(c + dir):
+	if !_board.is_open(c):
 		status = Status.OBSTRUCTED
 		return
-	var segface := SnakeSegment.new()
-	segface.cpos = c + dir
-	segface.type = SnakeSegment.SegmentType.FACE
-	append_segment(segface)
-	grow(dir)
+	dir = dir.sign()
+	var head := SnakeSegment.new()
+	head.cpos = c
+	head.cdir = dir
+	head.type = SnakeSegment.SegmentType.HEAD
+	append_segment(head)
+	#grow(dir)
 	for i in range(add_length):
 		grow()
 	status = Status.ALIVE
 
 
 func start_auto() -> void:
-	var p := _board.origin - Vector2i(1, 0) # + _board.size / 2
+	var p := _board.origin - Vector2i(1, 0)
 	var d := Vector3i(1, 0, 0)
 	start(Vector3i(p.x, p.y, 0), d, _get_next_length())
 
@@ -114,22 +113,22 @@ func try_set_heading(d: Vector3i) -> bool:
 	d = d.sign() * step_size
 	if !check_motion_delta(d):
 		return false
-	if !flag(Flag.STEER_180) && length() > 2:
-		if d.sign() == -_seg_heading(2).sign():
+	if !flag(Flag.STEER_180) && length() >= 2:
+		if d.sign() == -_seg_heading(1).sign():
 			return false
-	var newpos := _seg_cpos(1) + d
+	var newpos := _seg_cpos(0) + d
 	if !flag(Flag.STEER_AT_SELF):
 		for seg in _segs:
 			if seg.cpos == newpos:
 				return false
 	if !flag(Flag.STEER_AT_WALL) && !_board.is_open(newpos):
 		return false
-	_seg_set_cpos(0, newpos)
+	_segs[0].cdir = d.sign()
 	return true
 
 
 func check_motion_delta(d: Vector3i) -> bool:
-	if length() < 2:
+	if length() < 1:
 		return false
 	if d.x == 0 && d.y == 0:
 		return false
@@ -156,7 +155,7 @@ func act() -> void:
 
 ## Move on current heading, if possible.
 func motion() -> void:
-	if length() < 2:
+	if length() < 1:
 		return
 	if action_points <= 0:
 		return
@@ -167,32 +166,29 @@ func motion() -> void:
 
 ## Snake forward.
 func motion_move() -> void:
-	if !_board.is_open(_seg_cpos(0)):
+	var head_forward := _seg_heading(0)
+	if !_board.is_open(_seg_cpos(0) + head_forward):
 		# ????: Try alternatives?
 		crash()
 		return
-	var head_forward := _seg_heading(1)
 	for seg in range(length() - 1, 0, -1):
 		_seg_set_cpos(seg, _seg_cpos(seg - 1))
+	_seg_set_cpos(0, _seg_cpos(0) + head_forward)
 	if flag(Flag.MOTION_AUTO):
 		try_set_heading(head_forward)
 
 
 func crash() -> void:
-	_segs[0].queue_free()
-	_segs.pop_front()
 	status = Status.CRASHED
 	crashed.emit()
 
 
 func pose_segments(pose: Array[Vector3i], origin: int) -> void:
-	if status != Status.ALIVE || pose.size() != length() - 1:
+	if status != Status.ALIVE || pose.size() != length():
 		return
-	var poseidx := 0
-	var cpos_origin := _seg_cpos(origin + 1)
-	for segidx in range(1, length()):
-		_seg_set_cpos(segidx, cpos_origin + pose[poseidx])
-		poseidx += 1
+	var cpos_origin := _seg_cpos(origin)
+	for segidx in range(length()):
+		_seg_set_cpos(segidx, cpos_origin + pose[segidx])
 
 
 func _seg_cpos(idx: int) -> Vector3i:
