@@ -68,6 +68,7 @@ class Island:
 		return base
 
 
+## Extract the minimal set of islands from [param board].
 static func go(board: Board2D) -> Array[Island]:
 	var entities: Array[Cellular] = board.get_entities(false, false)
 	var islands: Array[Island] = []
@@ -106,19 +107,10 @@ static func go(board: Board2D) -> Array[Island]:
 	return islands
 
 
+## Extract the [param dir]-facing [i]coast[/i] of the tiles in [param land].
+## A [i]coast[/i] is the subset of land that has no land adjacent to it in a given direction.
 static func get_coast(land: Array[Vector3i], dir: Vector3i) -> Array[Vector3i]:
 	var asdf := {}
 	for c in land:
 		asdf[c] = 1
 	return land.filter(func(c): return !asdf.has(c + dir))
-	#var coast := {}
-	#for c in land:
-		#var fore := c + dir
-		#if coast.has(fore):
-			#continue
-		#var hind := c - dir
-		#if coast.has(hind):
-			#coast.erase(hind)
-		#coast[c] = 1
-#
-	#return []
