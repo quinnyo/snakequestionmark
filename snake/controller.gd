@@ -6,6 +6,7 @@ enum Status {
 	NIL,
 	ALIVE,
 	CRASHED,
+	STONE,
 	DEAD,
 	OBSTRUCTED,
 }
@@ -21,7 +22,6 @@ enum Flag {
 
 	GRAVITY_ENABLE,
 
-	_COUNT,
 	STEERF_DEFAULT = (1 << STEER_AT_WALL) | (1 << STEER_AT_SELF),
 	MOTIONF_DEFAULT = (1 << MOTION_AUTO),
 	DEFAULT = STEERF_DEFAULT | MOTIONF_DEFAULT | (1 << GRAVITY_ENABLE)
@@ -128,8 +128,7 @@ func try_set_heading(d: Vector3i) -> bool:
 		return false
 	_segs[0].cdir = d.sign()
 	if flag(SnakeController.Flag.MOTION_IMMEDIATE):
-		action_points = 1
-		motion()
+		walk(_seg_heading(0))
 	return true
 
 
@@ -149,40 +148,46 @@ func check_motion_delta(d: Vector3i) -> bool:
 
 func act() -> void:
 	if status == Status.CRASHED:
-		if length():
-			var seg := _segs.pop_front() as SnakeSegment
-			seg.stone = true
-			seg.reparent(get_parent())
-		else:
-			status = Status.DEAD
+		var all_stone := true
+		for seg in _segs:
+			if !seg.stone:
+				seg.stone = true
+				all_stone = false
+				break
+		if all_stone:
+			status = Status.STONE
 	elif status == Status.ALIVE:
 		if flag(Flag.MOTION_AUTO):
-			motion()
-		if flag(Flag.GRAVITY_ENABLE) && gravity != Vector3i.ZERO:
-			rigid_move(gravity)
+			if action_points > 0:
+				if walk(_seg_heading(0)):
+					action_points -= 1
+					return
+		if flag(Flag.GRAVITY_ENABLE) && gravity:
+			if !rigid_move(gravity):
+				crash()
+	elif status == Status.STONE:
+		if flag(Flag.GRAVITY_ENABLE) && gravity:
+			if !rigid_move(gravity):
+				for seg in _segs:
+					seg.reparent(get_parent())
+				_segs.clear()
+				status = Status.DEAD
 
 
-## Move on current heading, if possible.
-func motion() -> void:
-	if length() < 1:
-		return
-	if action_points <= 0:
-		return
-	if check_motion_delta(_seg_heading(0)):
-		motion_move()
-		action_points -= 1
-
-
-## Snake forward.
-func motion_move() -> void:
-	var head_forward := _seg_heading(0)
-	if !_board.is_open(_seg_cpos(0) + head_forward):
+## Snake walk by offset [param d].
+## The snake [i]crashes[/i] if completing the move would cause the head segment to collide.
+## Returns [code]true[/code] if the move was performed successfully.
+func walk(d: Vector3i) -> bool:
+	if !check_motion_delta(d):
+		return false
+	if !_board.is_open(_seg_cpos(0) + d):
 		# ????: Try alternatives?
 		crash()
-		return
+		return false
 	for seg in range(length() - 1, 0, -1):
 		_seg_set_cpos(seg, _seg_cpos(seg - 1))
-	_seg_set_cpos(0, _seg_cpos(0) + head_forward)
+	_seg_set_cpos(0, _seg_cpos(0) + d)
+	return true
 
 
 func crash() -> void:
@@ -198,18 +203,18 @@ func pose_segments(pose: Array[Vector3i], origin: int) -> void:
 		_seg_set_cpos(segidx, cpos_origin + pose[segidx])
 
 
-func rigid_move(d: Vector3i, crash_enable: bool = true) -> void:
+## Move all segments by [param d], if moved position of [b]all[/b] segments is unobstructed.
+## Returns [code]true[/code] if successful.
+func rigid_move(d: Vector3i) -> bool:
+	if not d:
+		return false
 	var coast := Islands.get_coast(get_cells(), d.sign())
-	var can_move := true
 	for c in coast:
 		if !_board.is_open(c + d):
-			can_move = false
-			break
-	if can_move:
-		for seg in _segs:
-			seg.cpos += d
-	elif crash_enable:
-		crash()
+			return false
+	for seg in _segs:
+		seg.cpos += d
+	return true
 
 
 func get_cells() -> Array[Vector3i]:
