@@ -11,8 +11,7 @@ var mouse_cell: Vector3i:
 			queue_redraw()
 
 
-const Islands := preload("res://board/extra/islands.gd")
-var islands2: Array[Islands.Island] = []
+var islands2: Array[Island] = []
 
 
 func unrectify(cr: Rect2i) -> PackedVector2Array:
@@ -48,7 +47,7 @@ func refresh() -> void:
 			new_tokens[token.cpos] = token
 		tokens = new_tokens
 
-		islands2 = Islands.go(board)
+		islands2 = Island.extract_islands(board)
 
 	queue_redraw()
 

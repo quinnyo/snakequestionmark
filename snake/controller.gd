@@ -217,7 +217,7 @@ func pose_segments(pose: Array[Vector3i], origin: int) -> void:
 func rigid_move(d: Vector3i) -> bool:
 	if not d:
 		return false
-	var coast := Islands.get_coast(get_cells(), d.sign())
+	var coast := Island.get_coast_coords(get_cells(), d.sign())
 	for c in coast:
 		if !_board.is_open(c + d):
 			return false

@@ -18,7 +18,7 @@ func cancel() -> void:
 func prepare() -> void:
 	island_entities.clear()
 	island_bases.clear()
-	for isl in Islands.go(board):
+	for isl in Island.extract_islands(board):
 		island_entities.push_back(isl.get_entities())
 		island_bases.push_back(isl.get_base(shift_direction))
 
