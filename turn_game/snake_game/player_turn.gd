@@ -15,8 +15,8 @@ func _tg_tick() -> void:
 	if snake.status == SnakeController.Status.DEAD:
 		status = Status.COMPLETE
 		snake.queue_free()
-	elif snake.status != SnakeController.Status.ALIVE:
-		snake.action_points = 1
+	else:
+		snake.action_points += 1
 
 
 func _tg_input(event: InputEvent) -> void:

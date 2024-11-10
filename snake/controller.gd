@@ -41,9 +41,10 @@ var status: Status = Status.NIL:
 	set(value):
 		status = value
 		BuggyG.say(self, "snake", Status.keys()[status])
+## Next step vector -- consumed when applied.
+var walk_step: Vector3i
 
 var _segs: Array[SnakeSegment] = []
-
 var _generation: int
 
 
@@ -127,6 +128,7 @@ func try_set_heading(d: Vector3i) -> bool:
 	if !flag(Flag.STEER_AT_WALL) && !_board.is_open(newpos):
 		return false
 	_segs[0].cdir = d.sign()
+	walk_step = d
 	if flag(SnakeController.Flag.MOTION_IMMEDIATE):
 		walk(_seg_heading(0))
 	return true
@@ -157,11 +159,18 @@ func act() -> void:
 		if all_stone:
 			status = Status.STONE
 	elif status == Status.ALIVE:
-		if flag(Flag.MOTION_AUTO):
-			if action_points > 0:
-				if walk(_seg_heading(0)):
-					action_points -= 1
-					return
+		if action_points > 0:
+			var d := Vector3i.ZERO
+			if walk_step:
+				d = walk_step
+				walk_step = Vector3i.ZERO
+			elif flag(Flag.MOTION_AUTO):
+				d = _seg_heading(0)
+
+			if d && walk(d):
+				action_points = 0
+				return
+
 		if flag(Flag.GRAVITY_ENABLE) && gravity:
 			if !rigid_move(gravity):
 				crash()

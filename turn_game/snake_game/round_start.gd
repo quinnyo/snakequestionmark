@@ -14,7 +14,6 @@ func _tg_start() -> void:
 	var snake := SnakeController.new()
 	snake.name = "SnakeController"
 	snake.flag_clear(SnakeController.Flag.MOTION_AUTO)
-	snake.flag_set(SnakeController.Flag.MOTION_IMMEDIATE)
 	board.add_child(snake)
 	var p := board.origin + Vector2i(board.size.x, 0) / 2
 	var d := Vector3i(-1, 0, 0)
