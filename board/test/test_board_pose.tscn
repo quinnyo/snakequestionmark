@@ -20,11 +20,13 @@ xf = Transform2D(1, 0, 0, 1, 0, 0)
 [node name="test_board_pose" type="Node2D"]
 
 [node name="Board2D" type="Node2D" parent="."]
+process_priority = -1
 script = ExtResource("1_0uo66")
 phield = SubResource("Resource_ina8o")
 layout = SubResource("Resource_72o5m")
 
 [node name="East" type="Node2D" parent="Board2D"]
+position = Vector2(352, 288)
 script = ExtResource("4_6qgm1")
 cpos = Vector3i(5, 4, 0)
 
@@ -34,6 +36,8 @@ width = 4.0
 default_color = Color(0.980136, 0.41748, 0.893018, 1)
 
 [node name="South" type="Node2D" parent="Board2D"]
+position = Vector2(288, 352)
+rotation = 1.5708
 script = ExtResource("4_6qgm1")
 cpos = Vector3i(4, 5, 0)
 cdir = Vector3i(0, 1, 0)
@@ -44,6 +48,8 @@ width = 4.0
 default_color = Color(0.980136, 0.41748, 0.893018, 1)
 
 [node name="West" type="Node2D" parent="Board2D"]
+position = Vector2(224, 288)
+rotation = -3.14159
 script = ExtResource("4_6qgm1")
 cpos = Vector3i(3, 4, 0)
 cdir = Vector3i(-1, 0, 0)
@@ -54,11 +60,15 @@ width = 4.0
 default_color = Color(0.980136, 0.41748, 0.893018, 1)
 
 [node name="North" type="Node2D" parent="Board2D"]
+position = Vector2(228, 249)
+rotation = 0.296462
 script = ExtResource("4_6qgm1")
 cpos = Vector3i(4, 3, 0)
 cdir = Vector3i(0, -1, 0)
+offset_position = Vector2(-60, 25)
+offset_rotation = 27.0
 
 [node name="Line2D" type="Line2D" parent="Board2D/North"]
 points = PackedVector2Array(32, 0, 32, -32, 0, -32, 0, 0, 128, 0)
 width = 4.0
-default_color = Color(0.980136, 0.41748, 0.893018, 1)
+default_color = Color(0.95512, 0.547796, 0.379725, 1)

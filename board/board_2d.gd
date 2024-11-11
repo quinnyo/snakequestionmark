@@ -65,14 +65,14 @@ func is_out_of_bounds(c: Vector3i) -> bool:
 	return !_bounds.has_point(Vector2i(c.x, c.y))
 
 
-func pose_global(c: Vector3i, d: Vector3i = Vector3i(1, 0, 0)) -> Transform2D:
+func pose_global(c: Vector3i, d: Vector3i = Vector3i(1, 0, 0), offset_position: Vector2 = Vector2.ZERO, offset_rotation: float = 0.0) -> Transform2D:
 	if !_assert_config():
 		return Transform2D()
 	d = d if d.x != 0 || d.y != 0 else Vector3i(1, 0, 0)
 	var p0 := phield.layout_centre(c, layout)
 	var p1 := phield.layout_centre(c + d, layout)
 	var angle := (p1 - p0).angle()
-	return global_transform * Transform2D(angle, p0)
+	return global_transform * Transform2D(angle + offset_rotation, p0 + offset_position)
 
 
 func get_layout_bounds() -> Rect2:
@@ -137,6 +137,16 @@ func get_entities(ghosts: bool, out_of_bounds: bool) -> Array[Cellular]:
 	return _entities.filter(func(ent: Cellular): return (ghosts || !ent.ghost) && (out_of_bounds || !is_out_of_bounds(ent.cpos)))
 
 
+static func detect_cellular_children(node: Node, recursive: bool = true) -> Array[Cellular]:
+	var entities: Array[Cellular] = []
+	for child in node.get_children():
+		if child is Cellular:
+			entities.push_back(child)
+		if recursive:
+			entities.append_array(Board2D.detect_cellular_children(child, recursive))
+	return entities
+
+
 static func find_parent_board(node: Node) -> Board2D:
 	var parent := node.get_parent()
 	while parent && parent is not Board2D:
@@ -144,5 +154,17 @@ static func find_parent_board(node: Node) -> Board2D:
 	return parent
 
 
+func _init() -> void:
+	process_priority = -1
+
+
 func _ready() -> void:
 	_refresh()
+
+
+func _process(_delta: float) -> void:
+	if Engine.is_editor_hint():
+		var detected_entities := Board2D.detect_cellular_children(self)
+		for ent in detected_entities:
+			var xf := pose_global(ent.cpos, ent.cdir, ent.offset_position, ent.offset_rotation)
+			ent.global_transform = xf
