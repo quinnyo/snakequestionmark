@@ -6,7 +6,7 @@ class_name TgGame extends Node
 func start() -> void:
 	if not sequence:
 		return
-	sequence.bind(self)
+	sequence.bind(self, null)
 	if !sequence.activate():
 		push_error("root sequence cannot be activated.")
 		return

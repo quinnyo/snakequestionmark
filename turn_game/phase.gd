@@ -15,14 +15,15 @@ var status: Status = Status.NIL:
 			#print("%s.status = %s (<-- %s)" % [ self,  fmt_status(value, true), fmt_status(status, true) ])
 		status = value
 var _host: TgGame
-
+var _parent: TgPhase
 
 func _to_string() -> String:
 	return "<TgPhase|%s>" % [ get_script().resource_path.get_file() ]
 
 
-func bind(game: TgGame) -> void:
+func bind(game: TgGame, parent: TgPhase) -> void:
 	_host = game
+	_parent = parent
 	_tg_bind()
 
 

@@ -34,7 +34,7 @@ func _pc_advance() -> void:
 func _tg_bind() -> void:
 	for phase in sequence:
 		if phase:
-			phase.bind(_host)
+			phase.bind(_host, self)
 
 
 func _tg_activate() -> bool:
@@ -67,6 +67,8 @@ func _tg_tick() -> void:
 			push_error("phase error @pc=%d: %s" % [ _pc, phase ])
 			status = Status.ERROR
 			return
+		elif phase.status == Status.REPEAT:
+			restart()
 
 
 func _tg_input(event: InputEvent) -> void:
