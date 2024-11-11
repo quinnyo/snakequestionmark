@@ -22,6 +22,9 @@ enum Flag {
 
 	GRAVITY_ENABLE,
 
+	## Force crash from falling even if a manual walk step was just taken.
+	FALL_CRASH_MANUAL_WALK,
+
 	STEERF_DEFAULT = (1 << STEER_AT_WALL) | (1 << STEER_AT_SELF),
 	MOTIONF_DEFAULT = (1 << MOTION_AUTO),
 	DEFAULT = STEERF_DEFAULT | MOTIONF_DEFAULT | (1 << GRAVITY_ENABLE)
@@ -31,6 +34,7 @@ enum Flag {
 	"Steer Diagonal", "Steer 180", "Steer At Wall", "Steer At Self",
 	"Motion Auto", "Motion Immediate",
 	"Gravity Enable",
+	"Fall Crash During Manual Walk",
 ) var flags: int = Flag.DEFAULT
 
 @export var gravity := Vector3i(0, 1, 0)
@@ -159,21 +163,25 @@ func act() -> void:
 		if all_stone:
 			status = Status.STONE
 	elif status == Status.ALIVE:
+		var manual_walk := false
+		var did_walk := false
 		if action_points > 0:
 			var d := Vector3i.ZERO
 			if walk_step:
 				d = walk_step
 				walk_step = Vector3i.ZERO
+				manual_walk = true
 			elif flag(Flag.MOTION_AUTO):
 				d = _seg_heading(0)
 
 			if d && walk(d):
 				action_points = 0
-				return
+				did_walk = true
 
 		if flag(Flag.GRAVITY_ENABLE) && gravity:
 			if !rigid_move(gravity):
-				crash()
+				if flag(Flag.FALL_CRASH_MANUAL_WALK) || !(did_walk && manual_walk):
+					crash()
 	elif status == Status.STONE:
 		if flag(Flag.GRAVITY_ENABLE) && gravity:
 			if !rigid_move(gravity):
