@@ -28,13 +28,12 @@ sequence = ExtResource("2_xgyw5")
 [node name="Metronome" type="Node" parent="."]
 script = ExtResource("3_25s4q")
 autostart = false
-period = 0.4
+period = 0.2
 
 [node name="Board2D" type="Node2D" parent="."]
 script = ExtResource("2_aj5nv")
 phield = SubResource("Resource_nttt3")
 layout = SubResource("Resource_twbt4")
-size = Vector2i(16, 10)
 
 [node name="BoardDebugDraw2D" type="Node2D" parent="Board2D"]
 script = ExtResource("6_4kci2")

@@ -6,4 +6,4 @@ func _tg_activate() -> bool:
 
 
 func _tg_tick() -> void:
-	print("XtgCompact tick")
+	status = Status.BREAK
