@@ -31,9 +31,11 @@ autostart = false
 period = 0.2
 
 [node name="Board2D" type="Node2D" parent="."]
+process_priority = -1
 script = ExtResource("2_aj5nv")
 phield = SubResource("Resource_nttt3")
 layout = SubResource("Resource_twbt4")
+size = Vector2i(10, 20)
 
 [node name="BoardDebugDraw2D" type="Node2D" parent="Board2D"]
 script = ExtResource("6_4kci2")
