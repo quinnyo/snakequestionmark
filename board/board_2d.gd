@@ -9,14 +9,16 @@ signal changed()
 		if phield && phield.changed.is_connected(_refresh):
 			phield.changed.disconnect(_refresh)
 		phield = value
-		phield.changed.connect(_refresh)
+		if phield:
+			phield.changed.connect(_refresh)
 		_refresh()
 @export var layout: PhieldLayout:
 	set(value):
 		if layout && layout.changed.is_connected(_refresh):
 			layout.changed.disconnect(_refresh)
 		layout = value
-		layout.changed.connect(_refresh)
+		if layout:
+			layout.changed.connect(_refresh)
 		_refresh()
 
 ## Bounding region low bound in phield coordinates.
