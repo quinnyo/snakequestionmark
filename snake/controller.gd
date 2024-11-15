@@ -105,7 +105,7 @@ func start(c: Vector3i, dir: Vector3i, add_length: int = 0) -> void:
 	head.type = SnakeSegment.SegmentType.HEAD
 	append_segment(head)
 	for i in range(add_length):
-		grow()
+		grow(dir)
 	status = Status.ALIVE
 
 
